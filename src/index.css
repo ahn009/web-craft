@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Deep Space Navy Theme */
+    --background: 240 25% 4%;
+    --foreground: 0 0% 98%;
+    --card: 240 20% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 20% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 180 100% 50%;
+    --primary-foreground: 240 25% 4%;
+    --secondary: 240 15% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 15% 15%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 262 83% 58%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 15% 18%;
+    --input: 240 15% 15%;
+    --ring: 180 100% 50%;
+    --radius: 0.625rem;
+    
+    /* Custom Colors */
+    --cyan: 180 100% 50%;
+    --cyan-glow: 180 100% 50%;
+    --purple: 262 83% 58%;
+    --purple-glow: 262 83% 70%;
+    --navy-deep: 240 25% 4%;
+    --navy-mid: 240 20% 8%;
+    --navy-light: 220 30% 15%;
+    
+    /* Sidebar */
+    --sidebar-background: 240 20% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 180 100% 50%;
+    --sidebar-primary-foreground: 240 25% 4%;
+    --sidebar-accent: 240 15% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 15% 18%;
+    --sidebar-ring: 180 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    background: linear-gradient(180deg, hsl(var(--navy-deep)) 0%, hsl(var(--navy-mid)) 50%, hsl(220, 30%, 8%) 100%);
+    min-height: 100vh;
+  }
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--navy-deep));
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, hsl(var(--cyan)) 0%, hsl(var(--purple)) 100%);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, hsl(180, 100%, 60%) 0%, hsl(262, 83%, 65%) 100%);
+  }
+}
+
+@layer utilities {
+  /* Glow Effects */
+  .glow-cyan {
+    box-shadow: 0 0 20px hsl(var(--cyan) / 0.5),
+                0 0 40px hsl(var(--cyan) / 0.3),
+                0 0 60px hsl(var(--cyan) / 0.1);
+  }
+  
+  .glow-cyan-sm {
+    box-shadow: 0 0 10px hsl(var(--cyan) / 0.4),
+                0 0 20px hsl(var(--cyan) / 0.2);
+  }
+  
+  .glow-purple {
+    box-shadow: 0 0 20px hsl(var(--purple) / 0.5),
+                0 0 40px hsl(var(--purple) / 0.3),
+                0 0 60px hsl(var(--purple) / 0.1);
+  }
+  
+  .glow-text-cyan {
+    text-shadow: 0 0 10px hsl(var(--cyan) / 0.8),
+                 0 0 20px hsl(var(--cyan) / 0.5),
+                 0 0 30px hsl(var(--cyan) / 0.3);
+  }
+  
+  .glow-text-purple {
+    text-shadow: 0 0 10px hsl(var(--purple) / 0.8),
+                 0 0 20px hsl(var(--purple) / 0.5),
+                 0 0 30px hsl(var(--purple) / 0.3);
+  }
+  
+  /* Gradient Text */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--cyan)) 0%, hsl(var(--purple)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .gradient-text-animated {
+    background: linear-gradient(135deg, hsl(var(--cyan)) 0%, hsl(var(--purple)) 50%, hsl(var(--cyan)) 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 3s ease infinite;
+  }
+  
+  /* Glass Effect */
+  .glass {
+    background: hsl(var(--navy-mid) / 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+  
+  .glass-strong {
+    background: hsl(var(--navy-mid) / 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsl(var(--border) / 0.6);
+  }
+  
+  /* Border Gradient */
+  .border-gradient {
+    position: relative;
+  }
+  
+  .border-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, hsl(var(--cyan)) 0%, hsl(var(--purple)) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  
+  /* Grid Pattern Background */
+  .bg-grid {
+    background-image: 
+      linear-gradient(hsl(var(--cyan) / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--cyan) / 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+  
+  /* Radial Gradient Background */
+  .bg-radial-glow {
+    background: radial-gradient(ellipse at center, hsl(var(--purple) / 0.15) 0%, transparent 70%);
+  }
+}
+
+/* Keyframe Animations */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--cyan) / 0.5),
+                0 0 40px hsl(var(--cyan) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px hsl(var(--cyan) / 0.7),
+                0 0 60px hsl(var(--cyan) / 0.5);
+  }
+}
+
+@keyframes rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Animation Classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-rotate-slow {
+  animation: rotate-slow 20s linear infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, hsl(var(--cyan) / 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

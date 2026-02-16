@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="WebCraft AI - Build Intelligent AI Agents That Transform Your Business. Deploy powerful AI agents for customer support, sales, analytics, and more." />
+    <meta name="keywords" content="AI agents, artificial intelligence, automation, customer support, sales automation, analytics" />
+    <meta name="author" content="WebCraft AI" />
+    <meta name="theme-color" content="#0A0A0F" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebCraft AI - Intelligent AI Agents" />
+    <meta property="og:description" content="Build and deploy powerful AI agents that transform how your business operates." />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <title>WebCraft AI - Intelligent AI Agents</title>
+    
+    <style>
+      /* Critical CSS for initial load */
+      body {
+        margin: 0;
+        padding: 0;
+        background: #0A0A0F;
+        color: #ffffff;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+      
+      #root {
+        min-height: 100vh;
+      }
+      
+      /* Loading state */
+      .loading {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0A0A0F;
+        z-index: 9999;
+      }
+      
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(0, 245, 255, 0.2);
+        border-top-color: #00F5FF;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
