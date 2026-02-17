@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,8 +10,6 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const isHome = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,18 +19,6 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleNavClick = (link: typeof navLinks[number]) => {
-    if (isHome) {
-      const element = document.getElementById(link.sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else {
-      navigate(link.href);
-    }
-    setIsOpen(false);
-  };
 
   return (
     <motion.header
@@ -51,10 +37,10 @@ export default function Navbar() {
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Link to="/" className="flex items-center gap-2 group">
               <div className="relative">
-                <Sparkles className="w-8 h-8 text-cyan transition-all duration-300 group-hover:text-cyan-400" />
-                <div className="absolute inset-0 bg-cyan/30 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <Sparkles className="w-10 h-10 text-cyan transition-all duration-300 group-hover:text-cyan-400" />
+                <div className="absolute inset-0 bg-cyan/40 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
-              <span className="text-xl font-bold gradient-text">
+              <span className="text-2xl font-bold gradient-text">
                 WebCraft AI
               </span>
             </Link>
@@ -62,20 +48,34 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link, index) => (
-              <motion.button
-                key={link.href}
-                onClick={() => handleNavClick(link)}
-                className="relative text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 group"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -2 }}
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan to-purple transition-all duration-300 group-hover:w-full" />
-              </motion.button>
-            ))}
+            {navLinks.map((link, index) => {
+              const isActive = location.pathname === link.href;
+              return (
+                <motion.div
+                  key={link.href}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -2 }}
+                >
+                  <Link
+                    to={link.href}
+                    className={`relative text-sm transition-all duration-300 group px-3 py-1.5 rounded-lg hover:bg-gradient-to-r hover:from-cyan/10 hover:to-purple/10 ${
+                      isActive
+                        ? 'text-cyan font-medium'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {link.label}
+                    <span
+                      className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-cyan to-purple transition-all duration-300 ${
+                        isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                      }`}
+                    />
+                  </Link>
+                </motion.div>
+              );
+            })}
           </div>
 
           {/* CTA Button */}
@@ -121,18 +121,29 @@ export default function Navbar() {
 
                 {/* Mobile Links */}
                 <nav className="flex flex-col gap-4">
-                  {navLinks.map((link, index) => (
-                    <motion.button
-                      key={link.href}
-                      onClick={() => handleNavClick(link)}
-                      className="text-left text-lg text-muted-foreground hover:text-cyan transition-colors duration-300 py-2 border-b border-border/50"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      {link.label}
-                    </motion.button>
-                  ))}
+                  {navLinks.map((link, index) => {
+                    const isActive = location.pathname === link.href;
+                    return (
+                      <motion.div
+                        key={link.href}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <Link
+                          to={link.href}
+                          onClick={() => setIsOpen(false)}
+                          className={`block text-lg py-2 px-3 rounded-lg border-b border-border/50 transition-all duration-300 hover:bg-gradient-to-r hover:from-cyan/10 hover:to-purple/10 ${
+                            isActive
+                              ? 'text-cyan font-medium'
+                              : 'text-muted-foreground hover:text-cyan'
+                          }`}
+                        >
+                          {link.label}
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
                 </nav>
 
                 {/* Mobile CTA */}

@@ -1,73 +1,95 @@
-# React + TypeScript + Vite
+# WebCraft AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An AI agent marketplace and deployment platform. Browse, test, and deploy AI agents built from real n8n workflows.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Frontend**
+- React 18 + TypeScript
+- Vite
+- Tailwind CSS
+- Framer Motion
+- React Router v6
+- Three.js / React Three Fiber (3D visuals)
 
-## React Compiler
+**Backend**
+- Node.js + Fastify
+- Prisma ORM
+- PostgreSQL
+- JWT authentication
+- Zod validation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
+- Node.js 18+
+- PostgreSQL database
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Backend Setup
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd backend
+cp .env.example .env   # Configure DATABASE_URL, JWT_SECRET
+npm install
+npx prisma migrate dev
+npm run dev             # Starts on http://localhost:3000
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Frontend Setup
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+npm install
+npm run dev             # Starts on http://localhost:5173
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/agents` | List agents (paginated, filterable) |
+| GET | `/api/agents/categories` | Get all categories |
+| GET | `/api/agents/:id` | Get agent details |
+| POST | `/api/agents/:id/test` | Simulate agent test run |
+| GET | `/api/agents/:id/download` | Download agent JSON (auth required) |
+| POST | `/api/auth/register` | Register user |
+| POST | `/api/auth/login` | Login user |
+
+### Query Parameters for `GET /api/agents`
+
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| page | number | 1 | Page number |
+| limit | number | 20 | Items per page (max 100) |
+| search | string | - | Search by name/description |
+| category | string | - | Filter by category |
+| tag | string | - | Filter by tag |
+| sort | string | newest | `newest`, `price_asc`, `price_desc`, `name_asc` |
+
+## Environment Variables
+
+### Backend (`backend/.env`)
+
+```
+DATABASE_URL=postgresql://user:password@localhost:5432/webcraft
+JWT_SECRET=your-secret-key
+PORT=3000
+```
+
+## Project Structure
+
+```
+├── src/                    # Frontend source
+│   ├── components/         # Reusable UI components
+│   ├── lib/                # Static data and utilities
+│   ├── pages/              # Route pages
+│   ├── sections/           # Homepage sections
+│   ├── services/           # API service layer
+│   └── types/              # TypeScript types
+├── backend/                # Backend source
+│   └── src/
+│       ├── modules/        # Feature modules (agents, auth, purchases)
+│       ├── plugins/        # Fastify plugins (prisma, cors, auth)
+│       ├── services/       # Shared services
+│       └── server.ts       # Entry point
+└── public/                 # Static assets
 ```

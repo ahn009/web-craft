@@ -22,8 +22,8 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <motion.div whileHover={{ scale: 1.02 }}>
               <Link to="/" className="flex items-center gap-2 mb-6">
-                <Sparkles className="w-8 h-8 text-cyan" />
-                <span className="text-xl font-bold gradient-text">WebCraft AI</span>
+                <Sparkles className="w-10 h-10 text-cyan" />
+                <span className="text-2xl font-bold gradient-text">WebCraft AI</span>
               </Link>
             </motion.div>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs">
@@ -36,7 +36,7 @@ export default function Footer() {
                 <motion.a
                   key={social.name}
                   href={social.href}
-                  className="w-10 h-10 rounded-full bg-secondary/50 flex items-center justify-center text-muted-foreground hover:text-cyan hover:bg-cyan/10 transition-all duration-300"
+                  className="w-10 h-10 rounded-full bg-secondary/50 flex items-center justify-center text-muted-foreground hover:text-cyan hover:bg-gradient-to-r hover:from-cyan/10 hover:to-purple/10 transition-all duration-300"
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   aria-label={social.name}
@@ -55,7 +55,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-cyan transition-colors duration-300"
+                    className="text-sm text-muted-foreground hover:text-cyan transition-all duration-300 px-2 py-1 rounded-md hover:bg-gradient-to-r hover:from-cyan/10 hover:to-purple/10 -ml-2"
                   >
                     {link.label}
                   </Link>
@@ -72,7 +72,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-cyan transition-colors duration-300"
+                    className="text-sm text-muted-foreground hover:text-cyan transition-all duration-300 px-2 py-1 rounded-md hover:bg-gradient-to-r hover:from-cyan/10 hover:to-purple/10 -ml-2"
                   >
                     {link.label}
                   </Link>
@@ -89,7 +89,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-cyan transition-colors duration-300"
+                    className="text-sm text-muted-foreground hover:text-cyan transition-all duration-300 px-2 py-1 rounded-md hover:bg-gradient-to-r hover:from-cyan/10 hover:to-purple/10 -ml-2"
                   >
                     {link.label}
                   </Link>
@@ -106,7 +106,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-cyan transition-colors duration-300"
+                    className="text-sm text-muted-foreground hover:text-cyan transition-all duration-300 px-2 py-1 rounded-md hover:bg-gradient-to-r hover:from-cyan/10 hover:to-purple/10 -ml-2"
                   >
                     {link.label}
                   </Link>
@@ -135,8 +135,8 @@ export default function Footer() {
                 />
               </div>
               <motion.button
-                className="px-6 py-3 bg-gradient-to-r from-cyan to-cyan-600 text-navy-900 font-semibold rounded-full whitespace-nowrap"
-                whileHover={{ scale: 1.02 }}
+                className="px-6 py-3 bg-gradient-to-r from-cyan to-cyan-600 text-navy-900 font-semibold rounded-full whitespace-nowrap hover:shadow-lg hover:shadow-cyan/20 transition-shadow duration-300"
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
               >
                 Subscribe

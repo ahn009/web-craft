@@ -26,6 +26,8 @@ const SupportPage = lazy(() => import('@/pages/resources/SupportPage'));
 const PrivacyPage = lazy(() => import('@/pages/legal/PrivacyPage'));
 const TermsPage = lazy(() => import('@/pages/legal/TermsPage'));
 const SecurityPage = lazy(() => import('@/pages/legal/SecurityPage'));
+const MarketplacePage = lazy(() => import('@/pages/MarketplacePage'));
+const MarketplaceAgentDetailPage = lazy(() => import('@/pages/MarketplaceAgentDetailPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 function PageFallback() {
@@ -67,6 +69,8 @@ export const router = createBrowserRouter([
       { path: 'privacy', element: <SuspenseWrapper><PrivacyPage /></SuspenseWrapper> },
       { path: 'terms', element: <SuspenseWrapper><TermsPage /></SuspenseWrapper> },
       { path: 'security', element: <SuspenseWrapper><SecurityPage /></SuspenseWrapper> },
+      { path: 'marketplace', element: <SuspenseWrapper><MarketplacePage /></SuspenseWrapper> },
+      { path: 'marketplace/:id', element: <SuspenseWrapper><MarketplaceAgentDetailPage /></SuspenseWrapper> },
       { path: '*', element: <SuspenseWrapper><NotFoundPage /></SuspenseWrapper> },
     ],
   },

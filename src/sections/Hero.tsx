@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Zap, Shield, Globe } from 'lucide-react';
+import { ArrowRight, Play, Bot, ShoppingBag, Cpu, Workflow, Shield, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
 
 // Dynamic import for 3D component to avoid SSR issues
 const BrainSphere = () => {
   const [Component, setComponent] = useState<React.ComponentType<any> | null>(null);
-  
+
   useEffect(() => {
     import('@/components/3d/BrainSphere').then((mod) => {
       setComponent(() => mod.default);
     });
   }, []);
-  
+
   if (!Component) {
     return (
       <div className="w-full h-full flex items-center justify-center">
@@ -22,14 +22,20 @@ const BrainSphere = () => {
       </div>
     );
   }
-  
+
   return <Component size={2.5} color="#00F5FF" wireframe={true} />;
 };
 
 const stats = [
-  { icon: Zap, value: '10x', label: 'Faster Deployment' },
-  { icon: Shield, value: '99.9%', label: 'Uptime SLA' },
+  { icon: Bot, value: '1,800+', label: 'AI Agents' },
+  { icon: ShoppingBag, value: '10+', label: 'Categories' },
   { icon: Globe, value: '50+', label: 'Countries' },
+];
+
+const features = [
+  { icon: Cpu, label: 'n8n Workflows' },
+  { icon: Workflow, label: 'Ready to Deploy' },
+  { icon: Shield, label: 'Enterprise Grade' },
 ];
 
 export default function Hero() {
@@ -39,7 +45,8 @@ export default function Hero() {
   });
 
   return (
-    <section 
+    <section
+      id="hero"
       ref={ref}
       className="relative min-h-screen flex items-center pt-20 overflow-hidden"
     >
@@ -47,7 +54,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-grid opacity-30" />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple/10 rounded-full blur-3xl" />
-      
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Content */}
@@ -61,7 +68,7 @@ export default function Hero() {
             >
               <span className="w-2 h-2 rounded-full bg-cyan animate-pulse" />
               <span className="text-sm text-cyan font-medium">
-                Next-Gen AI Agents
+                AI Agent Marketplace
               </span>
             </motion.div>
 
@@ -72,13 +79,13 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6"
             >
-              Build{' '}
-              <span className="gradient-text-animated">Intelligent</span>
+              Discover &{' '}
+              <span className="gradient-text-animated">Deploy</span>
               <br />
-              AI Agents That
+              AI Agents
               <br />
               <span className="relative">
-                Transform
+                Instantly
                 <motion.svg
                   className="absolute -bottom-2 left-0 w-full"
                   viewBox="0 0 200 12"
@@ -114,9 +121,27 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8"
             >
-              Deploy powerful AI agents for customer support, sales, analytics, and more. 
-              Cloud or on-premise, scaled to your needs.
+              Browse 1,800+ pre-built n8n workflow agents. Purchase, download, and deploy
+              automation agents for customer support, sales, analytics, and more.
             </motion.p>
+
+            {/* Feature pills */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.25 }}
+              className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8"
+            >
+              {features.map((feat, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/50 border border-border/50 text-sm text-muted-foreground"
+                >
+                  <feat.icon className="w-4 h-4 text-cyan" />
+                  {feat.label}
+                </span>
+              ))}
+            </motion.div>
 
             {/* CTA Buttons */}
             <motion.div
@@ -125,13 +150,13 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12"
             >
-              <Link to="/deploy">
+              <Link to="/marketplace">
                 <Button
                   size="lg"
                   className="relative overflow-hidden bg-gradient-to-r from-cyan to-cyan-600 text-navy-900 font-semibold px-8 py-6 rounded-full group"
                 >
                   <span className="relative z-10 flex items-center gap-2">
-                    Deploy Your Agent
+                    Browse Marketplace
                     <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                   </span>
                   <motion.div
@@ -143,14 +168,14 @@ export default function Hero() {
                 </Button>
               </Link>
 
-              <Link to="/contact">
+              <Link to="/services">
                 <Button
                   size="lg"
                   variant="outline"
                   className="border-cyan/30 text-foreground hover:bg-cyan/10 hover:border-cyan/50 px-8 py-6 rounded-full group"
                 >
                   <Play className="w-5 h-5 mr-2 text-cyan" />
-                  Watch Demo
+                  Explore Services
                 </Button>
               </Link>
             </motion.div>
@@ -190,27 +215,44 @@ export default function Hero() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-48 h-48 lg:w-72 lg:h-72 rounded-full bg-purple/20 blur-2xl animate-pulse delay-500" />
             </div>
-            
+
             {/* 3D Component */}
             <div className="relative z-10 w-full h-full">
               <BrainSphere />
             </div>
-            
+
             {/* Floating elements */}
             <motion.div
               className="absolute top-10 right-10 px-4 py-2 rounded-full bg-navy-900/80 backdrop-blur-sm border border-cyan/20"
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             >
-              <span className="text-sm text-cyan">AI Powered</span>
+              <span className="text-sm text-cyan flex items-center gap-2">
+                <Bot className="w-4 h-4" />
+                AI Powered
+              </span>
             </motion.div>
-            
+
             <motion.div
               className="absolute bottom-20 left-10 px-4 py-2 rounded-full bg-navy-900/80 backdrop-blur-sm border border-purple/20"
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             >
-              <span className="text-sm text-purple">24/7 Active</span>
+              <span className="text-sm text-purple flex items-center gap-2">
+                <Workflow className="w-4 h-4" />
+                n8n Ready
+              </span>
+            </motion.div>
+
+            <motion.div
+              className="absolute top-1/2 left-0 px-4 py-2 rounded-full bg-navy-900/80 backdrop-blur-sm border border-green-500/20"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            >
+              <span className="text-sm text-green-400 flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Secure
+              </span>
             </motion.div>
           </motion.div>
         </div>

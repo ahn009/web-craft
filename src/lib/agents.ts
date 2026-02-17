@@ -161,11 +161,11 @@ export const features: Feature[] = [
 ];
 
 export const navLinks = [
-  { label: 'Services', href: '/services', sectionId: 'services' },
-  { label: 'Why Us', href: '/why-us', sectionId: 'why-us' },
-  { label: 'Deployment', href: '/deployment', sectionId: 'deployment' },
-  { label: 'How It Works', href: '/how-it-works', sectionId: 'how-it-works' },
-  { label: 'Testimonials', href: '/testimonials', sectionId: 'testimonials' }
+  { label: 'Home', href: '/' },
+  { label: 'Services', href: '/services' },
+  { label: 'Deployment', href: '/deployment' },
+  { label: 'Testimonials', href: '/testimonials' },
+  { label: 'Marketplace', href: '/marketplace' },
 ];
 
 export const footerLinks = {
