@@ -1,13 +1,19 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import Fastify from "fastify";
+import fastifyStatic from "@fastify/static";
 import { env } from "./config/env.config.js";
 import prismaPlugin from "./plugins/prisma.plugin.js";
 import corsPlugin from "./plugins/cors.plugin.js";
 import authPlugin from "./plugins/auth.plugin.js";
+import rateLimitPlugin from "./plugins/rate-limit.plugin.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import agentRoutes from "./modules/agents/agents.routes.js";
 import purchaseRoutes from "./modules/purchases/purchases.routes.js";
 import { hasExtractedFiles, extractZip } from "./services/zip-extractor.service.js";
 import { importAgents } from "./services/agent-importer.service.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const fastify = Fastify({ logger: true });
 
@@ -15,11 +21,33 @@ const fastify = Fastify({ logger: true });
 await fastify.register(prismaPlugin);
 await fastify.register(corsPlugin);
 await fastify.register(authPlugin);
+await fastify.register(rateLimitPlugin);
 
 // Register routes
 await fastify.register(authRoutes);
 await fastify.register(agentRoutes);
 await fastify.register(purchaseRoutes);
+
+// Serve static frontend files in production
+const frontendDistPath = path.resolve(__dirname, "../../dist");
+try {
+  await fastify.register(fastifyStatic, {
+    root: frontendDistPath,
+    prefix: "/",
+    wildcard: false,
+  });
+
+  // SPA fallback: serve index.html for all non-API routes
+  fastify.setNotFoundHandler(async (request, reply) => {
+    if (request.url.startsWith("/api/")) {
+      return reply.status(404).send({ success: false, error: "Not found" });
+    }
+    return reply.sendFile("index.html");
+  });
+} catch {
+  // Frontend dist not built yet — skip static serving in dev
+  fastify.log.info("No frontend dist found, skipping static file serving");
+}
 
 // Health check
 fastify.get("/health", async () => ({ status: "ok" }));

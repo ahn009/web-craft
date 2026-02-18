@@ -46,6 +46,7 @@ export interface TestResult {
 interface ApiResponse<T> {
   success: boolean;
   data: T;
+  error?: string;
 }
 
 interface FetchAgentsParams {
@@ -60,7 +61,8 @@ interface FetchAgentsParams {
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${endpoint}`, options);
   if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${res.statusText}`);
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.error || `API error: ${res.status} ${res.statusText}`);
   }
   const json: ApiResponse<T> = await res.json();
   return json.data;
@@ -92,7 +94,7 @@ export async function testAgent(id: string): Promise<TestResult> {
 }
 
 export async function registerUser(email: string, password: string, name: string) {
-  return apiFetch<{ token: string }>('/api/auth/register', {
+  return apiFetch<{ user: { id: string; email: string; name: string }; message: string }>('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, name }),
@@ -100,9 +102,41 @@ export async function registerUser(email: string, password: string, name: string
 }
 
 export async function loginUser(email: string, password: string) {
-  return apiFetch<{ token: string }>('/api/auth/login', {
+  return apiFetch<{ user: { id: string; email: string; name: string }; token: string }>('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function verifyEmail(token: string) {
+  return apiFetch<{ email: string; name: string; message: string }>('/api/auth/verify-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function forgotPassword(email: string) {
+  return apiFetch<{ message: string }>('/api/auth/forgot-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resetPassword(token: string, password: string) {
+  return apiFetch<{ message: string }>('/api/auth/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, password }),
+  });
+}
+
+export async function resendVerification(email: string) {
+  return apiFetch<{ message: string }>('/api/auth/resend-verification', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
   });
 }

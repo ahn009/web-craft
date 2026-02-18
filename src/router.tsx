@@ -30,6 +30,14 @@ const MarketplacePage = lazy(() => import('@/pages/MarketplacePage'));
 const MarketplaceAgentDetailPage = lazy(() => import('@/pages/MarketplaceAgentDetailPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
+// Auth pages
+const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage'));
+const VerifyEmailPage = lazy(() => import('@/pages/auth/VerifyEmailPage'));
+const CheckEmailPage = lazy(() => import('@/pages/auth/CheckEmailPage'));
+
 function PageFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -71,6 +79,13 @@ export const router = createBrowserRouter([
       { path: 'security', element: <SuspenseWrapper><SecurityPage /></SuspenseWrapper> },
       { path: 'marketplace', element: <SuspenseWrapper><MarketplacePage /></SuspenseWrapper> },
       { path: 'marketplace/:id', element: <SuspenseWrapper><MarketplaceAgentDetailPage /></SuspenseWrapper> },
+      // Auth routes
+      { path: 'login', element: <SuspenseWrapper><LoginPage /></SuspenseWrapper> },
+      { path: 'register', element: <SuspenseWrapper><RegisterPage /></SuspenseWrapper> },
+      { path: 'forgot-password', element: <SuspenseWrapper><ForgotPasswordPage /></SuspenseWrapper> },
+      { path: 'reset-password', element: <SuspenseWrapper><ResetPasswordPage /></SuspenseWrapper> },
+      { path: 'verify-email', element: <SuspenseWrapper><VerifyEmailPage /></SuspenseWrapper> },
+      { path: 'check-email', element: <SuspenseWrapper><CheckEmailPage /></SuspenseWrapper> },
       { path: '*', element: <SuspenseWrapper><NotFoundPage /></SuspenseWrapper> },
     ],
   },
