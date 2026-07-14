@@ -4,6 +4,7 @@ import { listAgentsSchema } from "../src/modules/agents/agents.schema.js";
 import { loginSchema, registerSchema, verifyEmailSchema } from "../src/modules/auth/auth.schema.js";
 import { simulateTest } from "../src/modules/agents/agents.service.js";
 import { error, success } from "../src/utils/response.util.js";
+import { parseEnv } from "../src/config/env.config.js";
 
 test("listAgentsSchema applies defaults and coerces numeric query params", () => {
   const parsed = listAgentsSchema.parse({ page: "2", limit: "10", sort: "price_asc" });
@@ -47,4 +48,30 @@ test("simulateTest returns steps for workflow nodes", () => {
   assert.equal(result.status, "completed");
   assert.equal(result.steps.length, 2);
   assert.equal(result.steps[0].name, "Trigger");
+});
+
+test("production env parser accepts ENABLE_TEST_ROUTES=false string", () => {
+  const parsed = parseEnv({
+    NODE_ENV: "production",
+    DATABASE_URL: "postgresql://user:password@localhost:5432/webcraft",
+    JWT_SECRET: "a-unique-production-secret-with-32-characters",
+    FRONTEND_URL: "https://example.com",
+    ENABLE_TEST_ROUTES: "false",
+    CHECKOUT_MODE: "disabled",
+  });
+
+  assert.equal(parsed.ENABLE_TEST_ROUTES, false);
+});
+
+test("production env parser rejects ENABLE_TEST_ROUTES=true string", () => {
+  assert.throws(() =>
+    parseEnv({
+      NODE_ENV: "production",
+      DATABASE_URL: "postgresql://user:password@localhost:5432/webcraft",
+      JWT_SECRET: "a-unique-production-secret-with-32-characters",
+      FRONTEND_URL: "https://example.com",
+      ENABLE_TEST_ROUTES: "true",
+      CHECKOUT_MODE: "disabled",
+    })
+  );
 });

@@ -26,30 +26,28 @@ WORKDIR /app
 RUN apk add --no-cache dumb-init bash
 
 # Copy backend build output and dependencies
-COPY --from=backend-build /app/backend/dist ./backend/dist
-COPY --from=backend-build /app/backend/node_modules ./backend/node_modules
-COPY --from=backend-build /app/backend/package.json ./backend/
-COPY --from=backend-build /app/backend/prisma ./backend/prisma
+COPY --chown=node:node --from=backend-build /app/backend/dist ./backend/dist
+COPY --chown=node:node --from=backend-build /app/backend/node_modules ./backend/node_modules
+COPY --chown=node:node --from=backend-build /app/backend/package.json ./backend/
+COPY --chown=node:node --from=backend-build /app/backend/prisma ./backend/prisma
 
 # Copy frontend build output (served by backend via @fastify/static)
-COPY --from=frontend-build /app/dist ./dist
+COPY --chown=node:node --from=frontend-build /app/dist ./dist
 
 # Copy the workflow templates ZIP
-COPY n8n-workflow-templates-main.zip ./
-
-RUN chown -R node:node /app
+COPY --chown=node:node n8n-workflow-templates-main.zip ./
 USER node
 
 WORKDIR /app/backend
 
 # Health check to ensure app is ready
-HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+HEALTHCHECK --interval=10s --timeout=5s --start-period=60s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:3000/health', (r) => { r.resume(); process.exit(r.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1))"
 
 EXPOSE 3000
 
 # Use dumb-init to handle signals properly
-ENTRYPOINT ["/sbin/dumb-init", "--"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
 # Run migrations and start server
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]

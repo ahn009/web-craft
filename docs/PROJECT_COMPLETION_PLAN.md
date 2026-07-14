@@ -529,3 +529,17 @@ Notes:
 - Added `docs/FINAL_QA_REPORT.md`.
 - Final verification covers lint, tests, builds, and API script syntax.
 - Manual QA checklist is documented for browser/runtime validation.
+
+### Step 11: Non-Payment Release Closure
+
+Status: Completed on 2026-07-14.
+
+Notes:
+
+- Payment integration remains intentionally out of scope.
+- Docker Compose production defaults now satisfy backend env validation.
+- Test routes stay disabled in Docker production mode.
+- Checkout stays disabled by default in Docker production mode until payment provider work is completed.
+- Docker build/start was validated with healthy app and database containers.
+- Frontend and backend dependency audits now report zero vulnerabilities.
+- Production boolean env parsing now handles string values like `ENABLE_TEST_ROUTES=false` correctly.

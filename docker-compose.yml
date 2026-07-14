@@ -8,8 +8,6 @@ services:
       POSTGRES_DB: webcraft
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U webcraft -d webcraft"]
       interval: 5s
@@ -29,21 +27,23 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://webcraft:webcraft_secret@db:5432/webcraft
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_SECRET: ${JWT_SECRET:-local-docker-development-secret-please-override}
       PORT: "3000"
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       ZIP_PATH: ../n8n-workflow-templates-main.zip
       SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
       SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL:-noreply@webcraft.ai}
       NODE_ENV: ${NODE_ENV:-production}
+      ENABLE_TEST_ROUTES: "false"
+      CHECKOUT_MODE: ${CHECKOUT_MODE:-disabled}
     ports:
       - "3000:3000"
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/health', (r) => { r.resume(); process.exit(r.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 60s
     networks:
       - webcraft
     # Uncomment for development with hot reload:

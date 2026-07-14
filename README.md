@@ -108,10 +108,13 @@ The backend refuses to start in production with weak JWT secrets, non-PostgreSQL
 Docker deployment:
 
 ```bash
+export JWT_SECRET=<unique 32+ character secret>
 docker compose build
 docker compose up -d
 curl http://localhost:3000/health
 ```
+
+The compose file includes a local-only fallback secret so Docker QA can start, but production deployments should always provide `JWT_SECRET` explicitly.
 
 ## Project Structure
 

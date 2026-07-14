@@ -17,6 +17,9 @@ This report records the final verification pass after completing the project com
 - Automated frontend and backend contract tests.
 - Production env validation and deployment documentation.
 - Frontend vendor chunk splitting.
+- Docker Compose production defaults aligned with backend env validation.
+- Frontend and backend dependency audits resolved to zero reported vulnerabilities.
+- Docker runtime validated with healthy app/database containers.
 
 ## Verification Commands
 
@@ -28,7 +31,15 @@ npm run test
 npm run build
 cd backend && npm run test
 cd backend && npm run build
+npm audit --audit-level=high
+cd backend && npm audit --audit-level=high
 bash -n test-api.sh
+docker compose build
+docker compose up -d
+docker compose ps
+curl http://localhost:3000/health
+curl -I http://localhost:3000/
+curl http://localhost:3000/api/agents
 ```
 
 ## Manual QA Checklist
@@ -50,7 +61,4 @@ bash -n test-api.sh
 
 ## Known Remaining Product Decisions
 
-- Real payment provider integration is intentionally not implemented; checkout is demo-only.
-- `test-api.sh` requires backend `ENABLE_TEST_ROUTES=true` outside production.
-- Browserslist data may need periodic updates.
-- Docker runtime should be tested with production secrets before real deployment.
+- Real payment provider integration is intentionally not implemented; checkout stays disabled in production until it is added.

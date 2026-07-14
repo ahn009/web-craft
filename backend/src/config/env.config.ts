@@ -7,7 +7,17 @@ const weakJwtSecrets = new Set([
   "change-me-in-production",
 ]);
 
-const envSchema = z
+const booleanFromEnv = z.preprocess((value) => {
+  if (typeof value !== "string") return value;
+
+  const normalizedValue = value.trim().toLowerCase();
+  if (["true", "1", "yes", "on"].includes(normalizedValue)) return true;
+  if (["false", "0", "no", "off", ""].includes(normalizedValue)) return false;
+
+  return value;
+}, z.boolean());
+
+export const envSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     DATABASE_URL: z.string().default("file:./dev.db"),
@@ -17,7 +27,7 @@ const envSchema = z
     ZIP_PATH: z.string().default("../n8n-workflow-templates-main.zip"),
     SENDGRID_API_KEY: z.string().default(""),
     SENDGRID_FROM_EMAIL: z.string().email().default("noreply@webcraft.ai"),
-    ENABLE_TEST_ROUTES: z.coerce.boolean().default(false),
+    ENABLE_TEST_ROUTES: booleanFromEnv.default(false),
     CHECKOUT_MODE: z.enum(["demo", "disabled"]).default("demo"),
   })
   .superRefine((env, ctx) => {
@@ -48,4 +58,6 @@ const envSchema = z
     }
   });
 
-export const env = envSchema.parse(process.env);
+export const parseEnv = (input: NodeJS.ProcessEnv) => envSchema.parse(input);
+
+export const env = parseEnv(process.env);
