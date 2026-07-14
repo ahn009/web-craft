@@ -411,7 +411,7 @@ Frontend build passes, but Vite warns about large chunks:
 | My Agents page | Medium | Completed |
 | Payment provider/demo mode | Medium | Completed |
 | Automated tests | Medium | Completed |
-| Production config | Medium | Not started |
+| Production config | Medium | Completed |
 | Performance optimization | Low | Not started |
 | Final QA | High | Not started |
 
@@ -499,3 +499,14 @@ Notes:
 - Added backend `npm run test` using `tsx --test`.
 - Backend tests cover API response envelopes, auth/list-agent schema validation, and workflow test simulation.
 - These are focused contract tests; broader integration/UI test coverage can still be expanded later.
+
+### Step 8: Production Config
+
+Status: Completed on 2026-07-14.
+
+Notes:
+
+- Production env validation now rejects weak JWT secrets.
+- Production requires PostgreSQL-style `DATABASE_URL`.
+- Production cannot start with `ENABLE_TEST_ROUTES=true`.
+- README documents production env requirements and Docker health-check commands.

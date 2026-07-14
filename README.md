@@ -75,6 +75,7 @@ npm run dev             # Starts on http://localhost:5173
 ### Backend (`backend/.env`)
 
 ```
+NODE_ENV=development
 DATABASE_URL=postgresql://user:password@localhost:5432/webcraft
 JWT_SECRET=your-secret-key
 PORT=3000
@@ -88,6 +89,29 @@ VITE_API_URL=http://localhost:3000
 ```
 
 If the frontend is served by the backend in Docker/production, leave `VITE_API_URL` empty so requests use the same origin.
+
+## Production Notes
+
+For production set:
+
+```
+NODE_ENV=production
+DATABASE_URL=postgresql://...
+JWT_SECRET=<unique 32+ character secret>
+FRONTEND_URL=https://your-domain.example
+ENABLE_TEST_ROUTES=false
+CHECKOUT_MODE=disabled
+```
+
+The backend refuses to start in production with weak JWT secrets, non-PostgreSQL database URLs, or test routes enabled. Keep `CHECKOUT_MODE=disabled` until a real payment provider and webhook verification are implemented.
+
+Docker deployment:
+
+```bash
+docker compose build
+docker compose up -d
+curl http://localhost:3000/health
+```
 
 ## Project Structure
 

@@ -1,16 +1,51 @@
 import { z } from "zod";
 
-const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  DATABASE_URL: z.string().default("file:./dev.db"),
-  JWT_SECRET: z.string().default("dev-secret-key-change-in-production"),
-  PORT: z.coerce.number().default(3000),
-  FRONTEND_URL: z.string().default("http://localhost:5173"),
-  ZIP_PATH: z.string().default("../n8n-workflow-templates-main.zip"),
-  SENDGRID_API_KEY: z.string().default(""),
-  SENDGRID_FROM_EMAIL: z.string().email().default("noreply@webcraft.ai"),
-  ENABLE_TEST_ROUTES: z.coerce.boolean().default(false),
-  CHECKOUT_MODE: z.enum(["demo", "disabled"]).default("demo"),
-});
+const weakJwtSecrets = new Set([
+  "dev-secret-key-change-in-production",
+  "change-me-to-a-random-secret",
+  "your-secret-key-change-in-production",
+  "change-me-in-production",
+]);
+
+const envSchema = z
+  .object({
+    NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+    DATABASE_URL: z.string().default("file:./dev.db"),
+    JWT_SECRET: z.string().default("dev-secret-key-change-in-production"),
+    PORT: z.coerce.number().default(3000),
+    FRONTEND_URL: z.string().url().default("http://localhost:5173"),
+    ZIP_PATH: z.string().default("../n8n-workflow-templates-main.zip"),
+    SENDGRID_API_KEY: z.string().default(""),
+    SENDGRID_FROM_EMAIL: z.string().email().default("noreply@webcraft.ai"),
+    ENABLE_TEST_ROUTES: z.coerce.boolean().default(false),
+    CHECKOUT_MODE: z.enum(["demo", "disabled"]).default("demo"),
+  })
+  .superRefine((env, ctx) => {
+    if (env.NODE_ENV !== "production") return;
+
+    if (!env.DATABASE_URL.startsWith("postgresql://") && !env.DATABASE_URL.startsWith("postgres://")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["DATABASE_URL"],
+        message: "Production DATABASE_URL must be a PostgreSQL connection string",
+      });
+    }
+
+    if (weakJwtSecrets.has(env.JWT_SECRET) || env.JWT_SECRET.length < 32) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["JWT_SECRET"],
+        message: "Production JWT_SECRET must be unique and at least 32 characters",
+      });
+    }
+
+    if (env.ENABLE_TEST_ROUTES) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ENABLE_TEST_ROUTES"],
+        message: "ENABLE_TEST_ROUTES cannot be true in production",
+      });
+    }
+  });
 
 export const env = envSchema.parse(process.env);
