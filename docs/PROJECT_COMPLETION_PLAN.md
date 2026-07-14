@@ -412,7 +412,7 @@ Frontend build passes, but Vite warns about large chunks:
 | Payment provider/demo mode | Medium | Completed |
 | Automated tests | Medium | Completed |
 | Production config | Medium | Completed |
-| Performance optimization | Low | Not started |
+| Performance optimization | Low | Completed |
 | Final QA | High | Not started |
 
 ## Step-By-Step Working Notes
@@ -510,3 +510,12 @@ Notes:
 - Production requires PostgreSQL-style `DATABASE_URL`.
 - Production cannot start with `ENABLE_TEST_ROUTES=true`.
 - README documents production env requirements and Docker health-check commands.
+
+### Step 9: Performance Optimization
+
+Status: Completed on 2026-07-14.
+
+Notes:
+
+- Added Vite manual chunks for React, Three.js, React Three Fiber, animation libraries, Radix UI, and data visualization dependencies.
+- This keeps heavy vendor code out of the main application chunk and makes caching behavior more predictable.
