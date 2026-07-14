@@ -410,7 +410,7 @@ Frontend build passes, but Vite warns about large chunks:
 | Auth/test mismatch | High | Completed |
 | My Agents page | Medium | Completed |
 | Payment provider/demo mode | Medium | Completed |
-| Automated tests | Medium | Not started |
+| Automated tests | Medium | Completed |
 | Production config | Medium | Not started |
 | Performance optimization | Low | Not started |
 | Final QA | High | Not started |
@@ -488,3 +488,14 @@ Notes:
 - Disabled mode blocks checkout with a payment-provider configuration error.
 - Frontend copy now says "Claim Demo Access" / "Simulate Purchase" instead of implying real payment.
 - Env examples and README document the demo checkout behavior.
+
+### Step 7: Automated Tests
+
+Status: Completed on 2026-07-14.
+
+Notes:
+
+- Added frontend `npm run test` using Node's built-in test runner for API URL config behavior.
+- Added backend `npm run test` using `tsx --test`.
+- Backend tests cover API response envelopes, auth/list-agent schema validation, and workflow test simulation.
+- These are focused contract tests; broader integration/UI test coverage can still be expanded later.
