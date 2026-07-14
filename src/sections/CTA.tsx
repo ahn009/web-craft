@@ -7,7 +7,12 @@ import { Button } from '@/components/ui/button';
 
 // Dynamic import for particle field
 const ParticleField = () => {
-  const [Component, setComponent] = useState<React.ComponentType<any> | null>(null);
+  const [Component, setComponent] = useState<React.ComponentType<{
+    count?: number;
+    color?: string;
+    scrollSpeed?: number;
+    showConnections?: boolean;
+  }> | null>(null);
   
   useEffect(() => {
     import('@/components/3d/ParticleField').then((mod) => {

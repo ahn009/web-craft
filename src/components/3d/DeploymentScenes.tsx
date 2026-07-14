@@ -3,6 +3,11 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Float } from '@react-three/drei';
 import * as THREE from 'three';
 
+function seededRandom(seed: number) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
 // Cloud Deployment Scene
 function CloudScene() {
   const groupRef = useRef<THREE.Group>(null);
@@ -15,12 +20,12 @@ function CloudScene() {
     const colorArray = new Float32Array(count * 3);
     
     for (let i = 0; i < count; i++) {
-      posArray[i * 3] = (Math.random() - 0.5) * 8;
-      posArray[i * 3 + 1] = (Math.random() - 0.5) * 6;
-      posArray[i * 3 + 2] = (Math.random() - 0.5) * 4;
+      posArray[i * 3] = (seededRandom(i * 4 + 1) - 0.5) * 8;
+      posArray[i * 3 + 1] = (seededRandom(i * 4 + 2) - 0.5) * 6;
+      posArray[i * 3 + 2] = (seededRandom(i * 4 + 3) - 0.5) * 4;
       
       // Cyan and purple colors
-      const isCyan = Math.random() > 0.5;
+      const isCyan = seededRandom(i * 4 + 4) > 0.5;
       colorArray[i * 3] = isCyan ? 0 : 0.55;
       colorArray[i * 3 + 1] = isCyan ? 0.96 : 0.36;
       colorArray[i * 3 + 2] = isCyan ? 1 : 0.96;

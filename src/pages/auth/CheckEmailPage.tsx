@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { MailCheck, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { resendVerification } from '@/services/api';
+import { getErrorMessage } from '@/lib/errors';
 
 export default function CheckEmailPage() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -21,8 +22,8 @@ export default function CheckEmailPage() {
     try {
       await resendVerification(email);
       setResendStatus('Verification email sent! Check your inbox.');
-    } catch (err: any) {
-      setResendStatus(err.message || 'Failed to resend');
+    } catch (err: unknown) {
+      setResendStatus(getErrorMessage(err, 'Failed to resend'));
     } finally {
       setIsResending(false);
     }

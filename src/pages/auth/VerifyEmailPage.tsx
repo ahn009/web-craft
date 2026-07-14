@@ -6,32 +6,29 @@ import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { verifyEmail, resendVerification } from '@/services/api';
+import { getErrorMessage } from '@/lib/errors';
 
 export default function VerifyEmailPage() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
 
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(token ? 'loading' : 'error');
+  const [message, setMessage] = useState(token ? '' : 'No verification token provided.');
   const [resendEmail, setResendEmail] = useState('');
   const [resendStatus, setResendStatus] = useState('');
 
   useEffect(() => {
-    if (!token) {
-      setStatus('error');
-      setMessage('No verification token provided.');
-      return;
-    }
+    if (!token) return;
 
     verifyEmail(token)
       .then(() => {
         setStatus('success');
         setMessage('Your email has been verified successfully!');
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         setStatus('error');
-        setMessage(err.message || 'Verification failed');
+        setMessage(getErrorMessage(err, 'Verification failed'));
       });
   }, [token]);
 
@@ -41,8 +38,8 @@ export default function VerifyEmailPage() {
     try {
       await resendVerification(resendEmail);
       setResendStatus('Verification email sent! Check your inbox.');
-    } catch (err: any) {
-      setResendStatus(err.message || 'Failed to resend');
+    } catch (err: unknown) {
+      setResendStatus(getErrorMessage(err, 'Failed to resend'));
     }
   }
 

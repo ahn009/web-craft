@@ -154,6 +154,56 @@ function AnimatedSection({ children, className = '' }: { children: React.ReactNo
   );
 }
 
+function FeatureCard({ feature, index }: { feature: (typeof features)[number]; index: number }) {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
+      className="group relative p-6 rounded-2xl bg-card/50 border border-border/50 hover:border-cyan/30 transition-all duration-300"
+    >
+      <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+        <feature.icon className="w-6 h-6 text-cyan" />
+      </div>
+      <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+    </motion.div>
+  );
+}
+
+function IntegrationCategoryCard({
+  category,
+  index,
+}: {
+  category: (typeof integrationCategories)[number];
+  index: number;
+}) {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="p-8 rounded-2xl bg-card/50 border border-border/50 hover:border-cyan/30 transition-all duration-300"
+    >
+      <div
+        className={`w-14 h-14 rounded-xl ${
+          category.color === 'cyan' ? 'bg-cyan/10' : 'bg-purple/10'
+        } flex items-center justify-center mb-5`}
+      >
+        <category.icon
+          className={`w-7 h-7 ${category.color === 'cyan' ? 'text-cyan' : 'text-purple'}`}
+        />
+      </div>
+      <h3 className="text-xl font-semibold text-foreground mb-3">{category.title}</h3>
+      <p className="text-muted-foreground leading-relaxed">{category.description}</p>
+    </motion.div>
+  );
+}
+
 export default function FeaturesPage() {
   return (
     <>
@@ -168,25 +218,9 @@ export default function FeaturesPage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => {
-              const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
-              return (
-                <motion.div
-                  ref={ref}
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
-                  className="group relative p-6 rounded-2xl bg-card/50 border border-border/50 hover:border-cyan/30 transition-all duration-300"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
-                    <feature.icon className="w-6 h-6 text-cyan" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-                </motion.div>
-              );
-            })}
+            {features.map((feature, index) => (
+              <FeatureCard key={feature.title} feature={feature} index={index} />
+            ))}
           </div>
         </div>
       </section>
@@ -249,31 +283,9 @@ export default function FeaturesPage() {
           </AnimatedSection>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {integrationCategories.map((category, index) => {
-              const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
-              return (
-                <motion.div
-                  ref={ref}
-                  key={category.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="p-8 rounded-2xl bg-card/50 border border-border/50 hover:border-cyan/30 transition-all duration-300"
-                >
-                  <div
-                    className={`w-14 h-14 rounded-xl ${
-                      category.color === 'cyan' ? 'bg-cyan/10' : 'bg-purple/10'
-                    } flex items-center justify-center mb-5`}
-                  >
-                    <category.icon
-                      className={`w-7 h-7 ${category.color === 'cyan' ? 'text-cyan' : 'text-purple'}`}
-                    />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">{category.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{category.description}</p>
-                </motion.div>
-              );
-            })}
+            {integrationCategories.map((category, index) => (
+              <IntegrationCategoryCard key={category.title} category={category} index={index} />
+            ))}
           </div>
         </div>
       </section>

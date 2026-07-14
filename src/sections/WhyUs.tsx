@@ -6,7 +6,12 @@ import { features } from '@/lib/agents';
 
 // Dynamic import for 3D shapes
 const GeometricShape = ({ type, color }: { type: 'cube' | 'sphere' | 'torus'; color: string }) => {
-  const [Component, setComponent] = useState<React.ComponentType<any> | null>(null);
+  const [Component, setComponent] = useState<React.ComponentType<{
+    type: 'cube' | 'sphere' | 'torus';
+    color: string;
+    size?: number;
+    className?: string;
+  }> | null>(null);
   
   useEffect(() => {
     import('@/components/3d/GeometricShapes').then((mod) => {

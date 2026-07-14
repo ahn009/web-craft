@@ -8,7 +8,11 @@ import type { Agent } from '@/types';
 
 // Dynamic import for 3D icons
 const AgentIcon3D = ({ type, color }: { type: Agent['icon']; color: string }) => {
-  const [Component, setComponent] = useState<React.ComponentType<any> | null>(null);
+  const [Component, setComponent] = useState<React.ComponentType<{
+    type: Agent['icon'];
+    color: string;
+    size?: string;
+  }> | null>(null);
   
   useEffect(() => {
     import('@/components/3d/AgentIcons3D').then((mod) => {

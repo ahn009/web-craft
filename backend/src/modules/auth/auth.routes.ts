@@ -17,6 +17,10 @@ import {
 } from "./auth.service.js";
 import { success, error } from "../../utils/response.util.js";
 
+function getErrorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : "Unexpected error";
+}
+
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post("/api/auth/register", async (request, reply) => {
     const parsed = registerSchema.safeParse(request.body);
@@ -27,8 +31,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
     try {
       const user = await registerUser(fastify.prisma, parsed.data);
       return success({ user, message: "Registration successful. Please check your email to verify your account." });
-    } catch (e: any) {
-      return reply.status(409).send(error(e.message));
+    } catch (e: unknown) {
+      return reply.status(409).send(error(getErrorMessage(e)));
     }
   });
 
@@ -42,11 +46,12 @@ export default async function authRoutes(fastify: FastifyInstance) {
       const user = await loginUser(fastify.prisma, parsed.data);
       const token = fastify.jwt.sign({ id: user.id, email: user.email });
       return success({ user, token });
-    } catch (e: any) {
-      if (e.message.includes("verify your email")) {
-        return reply.status(403).send(error(e.message));
+    } catch (e: unknown) {
+      const message = getErrorMessage(e);
+      if (message.includes("verify your email")) {
+        return reply.status(403).send(error(message));
       }
-      return reply.status(401).send(error(e.message));
+      return reply.status(401).send(error(message));
     }
   });
 
@@ -59,8 +64,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
     try {
       const result = await verifyEmail(fastify.prisma, parsed.data.token);
       return success({ ...result, message: "Email verified successfully. You can now log in." });
-    } catch (e: any) {
-      return reply.status(400).send(error(e.message));
+    } catch (e: unknown) {
+      return reply.status(400).send(error(getErrorMessage(e)));
     }
   });
 
@@ -73,7 +78,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     try {
       await requestPasswordReset(fastify.prisma, parsed.data.email);
       return success({ message: "If an account exists with that email, a password reset link has been sent." });
-    } catch (e: any) {
+    } catch {
       return reply.status(500).send(error("Something went wrong. Please try again."));
     }
   });
@@ -87,8 +92,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
     try {
       await resetPassword(fastify.prisma, parsed.data.token, parsed.data.password);
       return success({ message: "Password has been reset successfully. You can now log in." });
-    } catch (e: any) {
-      return reply.status(400).send(error(e.message));
+    } catch (e: unknown) {
+      return reply.status(400).send(error(getErrorMessage(e)));
     }
   });
 
@@ -101,8 +106,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
     try {
       await resendVerification(fastify.prisma, parsed.data.email);
       return success({ message: "If an account exists with that email, a new verification link has been sent." });
-    } catch (e: any) {
-      return reply.status(429).send(error(e.message));
+    } catch (e: unknown) {
+      return reply.status(429).send(error(getErrorMessage(e)));
     }
   });
 }

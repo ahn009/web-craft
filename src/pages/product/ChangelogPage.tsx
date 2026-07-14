@@ -153,6 +153,67 @@ function AnimatedSection({ children, className = '' }: { children: React.ReactNo
   );
 }
 
+function ChangelogTimelineEntry({ entry, index }: { entry: ChangelogEntry; index: number }) {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const styles = categoryStyles[entry.category];
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: -20 }}
+      animate={inView ? { opacity: 1, x: 0 } : {}}
+      transition={{ duration: 0.5, delay: index * 0.05 }}
+      className="relative pl-12 md:pl-16"
+    >
+      {/* Timeline dot */}
+      <div
+        className={`absolute left-[12px] md:left-[16px] top-1 w-[15px] h-[15px] rounded-full border-2 border-background ${
+          entry.category === 'Feature'
+            ? 'bg-cyan'
+            : entry.category === 'Improvement'
+            ? 'bg-purple'
+            : 'bg-amber-500'
+        }`}
+      />
+
+      <div className="p-6 rounded-2xl bg-card/50 border border-border/50 hover:border-border transition-colors">
+        {/* Header */}
+        <div className="flex flex-wrap items-center gap-3 mb-3">
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles.bg} ${styles.text}`}>
+            {entry.version}
+          </span>
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles.bg} ${styles.text}`}>
+            {entry.category}
+          </span>
+          <span className="text-xs text-muted-foreground">{entry.date}</span>
+        </div>
+
+        {/* Title & Description */}
+        <h3 className="text-lg font-semibold text-foreground mb-2">{entry.title}</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4">{entry.description}</p>
+
+        {/* Changes list */}
+        <ul className="space-y-2">
+          {entry.changes.map((change, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+              <span
+                className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
+                  entry.category === 'Feature'
+                    ? 'bg-cyan'
+                    : entry.category === 'Improvement'
+                    ? 'bg-purple'
+                    : 'bg-amber-500'
+                }`}
+              />
+              {change}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function ChangelogPage() {
   return (
     <>
@@ -171,67 +232,9 @@ export default function ChangelogPage() {
             <div className="absolute left-[19px] md:left-[23px] top-0 bottom-0 w-px bg-border/50" />
 
             <div className="space-y-12">
-              {entries.map((entry, index) => {
-                const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
-                const styles = categoryStyles[entry.category];
-
-                return (
-                  <motion.div
-                    ref={ref}
-                    key={entry.version}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={inView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.5, delay: index * 0.05 }}
-                    className="relative pl-12 md:pl-16"
-                  >
-                    {/* Timeline dot */}
-                    <div
-                      className={`absolute left-[12px] md:left-[16px] top-1 w-[15px] h-[15px] rounded-full border-2 border-background ${
-                        entry.category === 'Feature'
-                          ? 'bg-cyan'
-                          : entry.category === 'Improvement'
-                          ? 'bg-purple'
-                          : 'bg-amber-500'
-                      }`}
-                    />
-
-                    <div className="p-6 rounded-2xl bg-card/50 border border-border/50 hover:border-border transition-colors">
-                      {/* Header */}
-                      <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles.bg} ${styles.text}`}>
-                          {entry.version}
-                        </span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles.bg} ${styles.text}`}>
-                          {entry.category}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{entry.date}</span>
-                      </div>
-
-                      {/* Title & Description */}
-                      <h3 className="text-lg font-semibold text-foreground mb-2">{entry.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed mb-4">{entry.description}</p>
-
-                      {/* Changes list */}
-                      <ul className="space-y-2">
-                        {entry.changes.map((change, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-                                entry.category === 'Feature'
-                                  ? 'bg-cyan'
-                                  : entry.category === 'Improvement'
-                                  ? 'bg-purple'
-                                  : 'bg-amber-500'
-                              }`}
-                            />
-                            {change}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </motion.div>
-                );
-              })}
+              {entries.map((entry, index) => (
+                <ChangelogTimelineEntry key={entry.version} entry={entry} index={index} />
+              ))}
             </div>
           </div>
         </div>

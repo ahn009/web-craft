@@ -17,6 +17,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const fastify = Fastify({ logger: true });
 
+function getErrorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : "Unexpected error";
+}
+
 // Register plugins
 await fastify.register(prismaPlugin);
 await fastify.register(corsPlugin);
@@ -60,8 +64,8 @@ async function bootstrap() {
     try {
       const count = extractZip(env.ZIP_PATH);
       fastify.log.info(`Extracted ${count} workflow files`);
-    } catch (e: any) {
-      fastify.log.error(`Failed to extract ZIP: ${e.message}`);
+    } catch (e: unknown) {
+      fastify.log.error(`Failed to extract ZIP: ${getErrorMessage(e)}`);
     }
   } else {
     fastify.log.info("Agent files already extracted");
@@ -74,8 +78,8 @@ async function bootstrap() {
     try {
       const imported = await importAgents(fastify.prisma);
       fastify.log.info(`Imported ${imported} agents`);
-    } catch (e: any) {
-      fastify.log.error(`Failed to import agents: ${e.message}`);
+    } catch (e: unknown) {
+      fastify.log.error(`Failed to import agents: ${getErrorMessage(e)}`);
     }
   } else {
     fastify.log.info(`Database already has ${agentCount} agents`);

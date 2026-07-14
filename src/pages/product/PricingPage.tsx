@@ -150,6 +150,135 @@ function FeatureCell({ value }: { value: boolean | string }) {
   return <span className="text-sm text-foreground">{value}</span>;
 }
 
+function PricingTierCard({
+  tier,
+  index,
+  annual,
+}: {
+  tier: (typeof tiers)[number];
+  index: number;
+  annual: boolean;
+}) {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const price = tier.monthlyPrice
+    ? annual
+      ? Math.round(tier.monthlyPrice * 0.8)
+      : tier.monthlyPrice
+    : null;
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: index * 0.15 }}
+      className={`relative flex flex-col p-8 rounded-2xl border transition-all duration-300 ${
+        tier.popular
+          ? 'border-cyan/50 bg-card/50 shadow-lg shadow-cyan/10'
+          : 'border-border/50 bg-card/50'
+      }`}
+    >
+      {tier.popular && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-cyan text-white text-xs font-semibold">
+          Most Popular
+        </div>
+      )}
+
+      <div className="mb-6">
+        <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center mb-4">
+          <tier.icon className="w-6 h-6 text-cyan" />
+        </div>
+        <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
+        <p className="text-sm text-muted-foreground mt-1">{tier.description}</p>
+      </div>
+
+      <div className="mb-6">
+        {price !== null ? (
+          <div className="flex items-baseline gap-1">
+            <span className="text-4xl font-bold text-foreground">${price}</span>
+            <span className="text-muted-foreground">/ month</span>
+          </div>
+        ) : (
+          <div className="flex items-baseline">
+            <span className="text-4xl font-bold text-foreground">Custom</span>
+          </div>
+        )}
+        {annual && price !== null && (
+          <p className="text-xs text-muted-foreground mt-1">
+            Billed annually at ${price * 12}/year
+          </p>
+        )}
+      </div>
+
+      <ul className="space-y-3 mb-8 flex-1">
+        {tier.features.map((feature) => (
+          <li key={feature} className="flex items-start gap-3 text-sm">
+            <Check className="w-4 h-4 text-cyan shrink-0 mt-0.5" />
+            <span className="text-muted-foreground">{feature}</span>
+          </li>
+        ))}
+      </ul>
+
+      <Button
+        asChild
+        size="lg"
+        className={`w-full ${
+          tier.popular
+            ? 'bg-cyan hover:bg-cyan/90 text-white'
+            : 'bg-secondary/50 hover:bg-secondary text-foreground'
+        }`}
+      >
+        <Link to={tier.ctaLink}>
+          {tier.cta} <ArrowRight className="w-4 h-4 ml-2" />
+        </Link>
+      </Button>
+    </motion.div>
+  );
+}
+
+function FaqItem({
+  faq,
+  index,
+  isOpen,
+  onToggle,
+}: {
+  faq: (typeof faqs)[number];
+  index: number;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      className="rounded-xl border border-border/50 bg-card/50 overflow-hidden"
+    >
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-5 text-left"
+      >
+        <span className="text-sm font-semibold text-foreground">{faq.question}</span>
+        <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0" />
+        </motion.div>
+      </button>
+      <motion.div
+        initial={false}
+        animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        className="overflow-hidden"
+      >
+        <div className="px-5 pb-5">
+          <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export default function PricingPage() {
   const [annual, setAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -202,84 +331,9 @@ export default function PricingPage() {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-            {tiers.map((tier, index) => {
-              const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
-              const price = tier.monthlyPrice
-                ? annual
-                  ? Math.round(tier.monthlyPrice * 0.8)
-                  : tier.monthlyPrice
-                : null;
-
-              return (
-                <motion.div
-                  ref={ref}
-                  key={tier.name}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: index * 0.15 }}
-                  className={`relative flex flex-col p-8 rounded-2xl border transition-all duration-300 ${
-                    tier.popular
-                      ? 'border-cyan/50 bg-card/50 shadow-lg shadow-cyan/10'
-                      : 'border-border/50 bg-card/50'
-                  }`}
-                >
-                  {tier.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-cyan text-white text-xs font-semibold">
-                      Most Popular
-                    </div>
-                  )}
-
-                  <div className="mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center mb-4">
-                      <tier.icon className="w-6 h-6 text-cyan" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{tier.description}</p>
-                  </div>
-
-                  <div className="mb-6">
-                    {price !== null ? (
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-4xl font-bold text-foreground">${price}</span>
-                        <span className="text-muted-foreground">/ month</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-baseline">
-                        <span className="text-4xl font-bold text-foreground">Custom</span>
-                      </div>
-                    )}
-                    {annual && price !== null && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Billed annually at ${price * 12}/year
-                      </p>
-                    )}
-                  </div>
-
-                  <ul className="space-y-3 mb-8 flex-1">
-                    {tier.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3 text-sm">
-                        <Check className="w-4 h-4 text-cyan shrink-0 mt-0.5" />
-                        <span className="text-muted-foreground">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button
-                    asChild
-                    size="lg"
-                    className={`w-full ${
-                      tier.popular
-                        ? 'bg-cyan hover:bg-cyan/90 text-white'
-                        : 'bg-secondary/50 hover:bg-secondary text-foreground'
-                    }`}
-                  >
-                    <Link to={tier.ctaLink}>
-                      {tier.cta} <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
-                  </Button>
-                </motion.div>
-              );
-            })}
+            {tiers.map((tier, index) => (
+              <PricingTierCard key={tier.name} tier={tier} index={index} annual={annual} />
+            ))}
           </div>
         </div>
       </section>
@@ -346,37 +400,15 @@ export default function PricingPage() {
 
           <div className="space-y-4">
             {faqs.map((faq, index) => {
-              const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
               const isOpen = openFaq === index;
               return (
-                <motion.div
-                  ref={ref}
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.4, delay: index * 0.08 }}
-                  className="rounded-xl border border-border/50 bg-card/50 overflow-hidden"
-                >
-                  <button
-                    onClick={() => setOpenFaq(isOpen ? null : index)}
-                    className="w-full flex items-center justify-between p-5 text-left"
-                  >
-                    <span className="text-sm font-semibold text-foreground">{faq.question}</span>
-                    <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                      <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0" />
-                    </motion.div>
-                  </button>
-                  <motion.div
-                    initial={false}
-                    animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-5 pb-5">
-                      <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
-                    </div>
-                  </motion.div>
-                </motion.div>
+                <FaqItem
+                  key={faq.question}
+                  faq={faq}
+                  index={index}
+                  isOpen={isOpen}
+                  onToggle={() => setOpenFaq(isOpen ? null : index)}
+                />
               );
             })}
           </div>

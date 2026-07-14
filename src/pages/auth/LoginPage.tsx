@@ -6,6 +6,7 @@ import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
+import { getErrorMessage } from '@/lib/errors';
 
 export default function LoginPage() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -32,8 +33,8 @@ export default function LoginPage() {
     try {
       await login(email, password);
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Failed to log in');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to log in'));
     } finally {
       setIsSubmitting(false);
     }

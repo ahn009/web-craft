@@ -1,11 +1,11 @@
-import type { PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import type { ListAgentsInput } from "./agents.schema.js";
 
 export async function listAgents(prisma: PrismaClient, input: ListAgentsInput) {
   const { page, limit, search, category, tag, sort } = input;
   const skip = (page - 1) * limit;
 
-  const where: any = {};
+  const where: Prisma.AgentWhereInput = {};
 
   if (search) {
     where.OR = [
@@ -22,7 +22,7 @@ export async function listAgents(prisma: PrismaClient, input: ListAgentsInput) {
     where.tags = { contains: tag };
   }
 
-  const orderBy: any =
+  const orderBy: Prisma.AgentOrderByWithRelationInput =
     sort === "price_asc" ? { price: "asc" }
     : sort === "price_desc" ? { price: "desc" }
     : sort === "name_asc" ? { name: "asc" }

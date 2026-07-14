@@ -2,6 +2,11 @@ import { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
+function seededRandom(seed: number) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
 interface ParticlesProps {
   count?: number;
   color?: string;
@@ -26,14 +31,14 @@ function Particles({
     
     for (let i = 0; i < count; i++) {
       // Random positions in 3D space
-      posArray[i * 3] = (Math.random() - 0.5) * 20;
-      posArray[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      posArray[i * 3 + 2] = (Math.random() - 0.5) * 10;
+      posArray[i * 3] = (seededRandom(i * 6 + 1) - 0.5) * 20;
+      posArray[i * 3 + 1] = (seededRandom(i * 6 + 2) - 0.5) * 20;
+      posArray[i * 3 + 2] = (seededRandom(i * 6 + 3) - 0.5) * 10;
       
       // Random velocities
-      velArray[i * 3] = (Math.random() - 0.5) * 0.02;
-      velArray[i * 3 + 1] = (Math.random() - 0.5) * 0.02;
-      velArray[i * 3 + 2] = (Math.random() - 0.5) * 0.01;
+      velArray[i * 3] = (seededRandom(i * 6 + 4) - 0.5) * 0.02;
+      velArray[i * 3 + 1] = (seededRandom(i * 6 + 5) - 0.5) * 0.02;
+      velArray[i * 3 + 2] = (seededRandom(i * 6 + 6) - 0.5) * 0.01;
     }
     
     return [posArray, velArray];
@@ -126,15 +131,15 @@ function ParticleConnections({
   color?: string;
 }) {
   const linesRef = useRef<THREE.LineSegments>(null);
-  const particlePositions = useRef<Float32Array>(new Float32Array(count * 3));
   
-  // Initialize random positions
-  useMemo(() => {
+  const particlePositions = useMemo(() => {
+    const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      particlePositions.current[i * 3] = (Math.random() - 0.5) * 15;
-      particlePositions.current[i * 3 + 1] = (Math.random() - 0.5) * 15;
-      particlePositions.current[i * 3 + 2] = (Math.random() - 0.5) * 8;
+      positions[i * 3] = (seededRandom(i * 3 + 101) - 0.5) * 15;
+      positions[i * 3 + 1] = (seededRandom(i * 3 + 102) - 0.5) * 15;
+      positions[i * 3 + 2] = (seededRandom(i * 3 + 103) - 0.5) * 8;
     }
+    return positions;
   }, [count]);
   
   useFrame(() => {
@@ -145,19 +150,19 @@ function ParticleConnections({
     // Find nearby particles and create connections
     for (let i = 0; i < count; i++) {
       for (let j = i + 1; j < count; j++) {
-        const dx = particlePositions.current[i * 3] - particlePositions.current[j * 3];
-        const dy = particlePositions.current[i * 3 + 1] - particlePositions.current[j * 3 + 1];
-        const dz = particlePositions.current[i * 3 + 2] - particlePositions.current[j * 3 + 2];
+        const dx = particlePositions[i * 3] - particlePositions[j * 3];
+        const dy = particlePositions[i * 3 + 1] - particlePositions[j * 3 + 1];
+        const dz = particlePositions[i * 3 + 2] - particlePositions[j * 3 + 2];
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
         
         if (dist < maxDistance) {
           positions.push(
-            particlePositions.current[i * 3],
-            particlePositions.current[i * 3 + 1],
-            particlePositions.current[i * 3 + 2],
-            particlePositions.current[j * 3],
-            particlePositions.current[j * 3 + 1],
-            particlePositions.current[j * 3 + 2]
+            particlePositions[i * 3],
+            particlePositions[i * 3 + 1],
+            particlePositions[i * 3 + 2],
+            particlePositions[j * 3],
+            particlePositions[j * 3 + 1],
+            particlePositions[j * 3 + 2]
           );
         }
       }

@@ -6,6 +6,7 @@ import { KeyRound, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { forgotPassword } from '@/services/api';
+import { getErrorMessage } from '@/lib/errors';
 
 export default function ForgotPasswordPage() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -22,8 +23,8 @@ export default function ForgotPasswordPage() {
     try {
       await forgotPassword(email);
       setSent(true);
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Something went wrong'));
     } finally {
       setIsSubmitting(false);
     }

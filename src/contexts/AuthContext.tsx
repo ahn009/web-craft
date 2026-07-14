@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 
 interface User {
   id: string;
@@ -20,25 +20,24 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const BASE_URL = 'http://localhost:3000';
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+function getStoredAuth(): { user: User | null; token: string | null } {
+  const storedToken = localStorage.getItem('auth_token');
+  const storedUser = localStorage.getItem('auth_user');
+  if (!storedToken || !storedUser) return { user: null, token: null };
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('auth_user');
-    if (storedToken && storedUser) {
-      try {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-      } catch {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-      }
-    }
-    setIsLoading(false);
-  }, []);
+  try {
+    return { user: JSON.parse(storedUser) as User, token: storedToken };
+  } catch {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    return { user: null, token: null };
+  }
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [authState, setAuthState] = useState(getStoredAuth);
+  const { user, token } = authState;
+  const isLoading = false;
 
   const login = useCallback(async (email: string, password: string) => {
     const res = await fetch(`${BASE_URL}/api/auth/login`, {
@@ -49,8 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const json = await res.json();
     if (!json.success) throw new Error(json.error);
     const { user: userData, token: authToken } = json.data;
-    setUser(userData);
-    setToken(authToken);
+    setAuthState({ user: userData, token: authToken });
     localStorage.setItem('auth_token', authToken);
     localStorage.setItem('auth_user', JSON.stringify(userData));
   }, []);
@@ -66,8 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    setUser(null);
-    setToken(null);
+    setAuthState({ user: null, token: null });
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
   }, []);

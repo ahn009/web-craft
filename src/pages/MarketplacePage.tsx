@@ -30,7 +30,7 @@ export default function MarketplacePage() {
       });
       setAgents(data.agents);
       setPagination(data.pagination);
-    } catch (err) {
+    } catch {
       setError('Failed to load agents. Make sure the backend is running on localhost:3000.');
     } finally {
       setLoading(false);

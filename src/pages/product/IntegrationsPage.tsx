@@ -179,6 +179,25 @@ function AnimatedSection({ children, className = '' }: { children: React.ReactNo
   );
 }
 
+function IntegrationCard({ integration, index }: { integration: Integration; index: number }) {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      className="group p-6 rounded-2xl bg-card/50 border border-border/50 hover:border-cyan/30 transition-all duration-300"
+    >
+      <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
+        <integration.icon className="w-6 h-6 text-cyan" />
+      </div>
+      <h3 className="text-lg font-semibold text-foreground mb-2">{integration.name}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed">{integration.description}</p>
+    </motion.div>
+  );
+}
+
 export default function IntegrationsPage() {
   const [activeCategory, setActiveCategory] = useState<Category>('CRM');
 
@@ -227,25 +246,9 @@ export default function IntegrationsPage() {
 
           {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredIntegrations.map((integration, index) => {
-              const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
-              return (
-                <motion.div
-                  ref={ref}
-                  key={integration.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.4, delay: index * 0.08 }}
-                  className="group p-6 rounded-2xl bg-card/50 border border-border/50 hover:border-cyan/30 transition-all duration-300"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center mb-4 group-hover:bg-cyan/20 transition-colors">
-                    <integration.icon className="w-6 h-6 text-cyan" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">{integration.name}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{integration.description}</p>
-                </motion.div>
-              );
-            })}
+            {filteredIntegrations.map((integration, index) => (
+              <IntegrationCard key={integration.name} integration={integration} index={index} />
+            ))}
           </div>
         </div>
       </section>

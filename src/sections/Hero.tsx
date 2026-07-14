@@ -7,7 +7,11 @@ import { useInView } from 'react-intersection-observer';
 
 // Dynamic import for 3D component to avoid SSR issues
 const BrainSphere = () => {
-  const [Component, setComponent] = useState<React.ComponentType<any> | null>(null);
+  const [Component, setComponent] = useState<React.ComponentType<{
+    size?: number;
+    color?: string;
+    wireframe?: boolean;
+  }> | null>(null);
 
   useEffect(() => {
     import('@/components/3d/BrainSphere').then((mod) => {

@@ -6,6 +6,7 @@ import { UserPlus, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
+import { getErrorMessage } from '@/lib/errors';
 
 export default function RegisterPage() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -37,8 +38,8 @@ export default function RegisterPage() {
     try {
       await register(email, password, name);
       navigate('/check-email?email=' + encodeURIComponent(email));
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to create account'));
     } finally {
       setIsSubmitting(false);
     }

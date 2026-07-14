@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button';
 
 // Dynamic import for 3D deployment scenes
 const DeploymentScene = ({ type }: { type: 'cloud' | 'server' }) => {
-  const [Component, setComponent] = useState<React.ComponentType<any> | null>(null);
+  const [Component, setComponent] = useState<React.ComponentType<{
+    type: 'cloud' | 'server';
+  }> | null>(null);
   
   useEffect(() => {
     import('@/components/3d/DeploymentScenes').then((mod) => {
