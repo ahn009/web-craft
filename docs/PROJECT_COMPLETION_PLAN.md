@@ -406,7 +406,7 @@ Frontend build passes, but Vite warns about large chunks:
 | --- | --- | --- |
 | Lint/code hygiene | High | Completed |
 | API URL config | High | Completed |
-| Purchase/download UI | High | Not started |
+| Purchase/download UI | High | Completed |
 | Auth/test mismatch | High | Not started |
 | My Agents page | Medium | Not started |
 | Payment provider/demo mode | Medium | Not started |
@@ -446,13 +446,14 @@ Notes:
 
 ### Step 3: Marketplace Ownership Flow
 
-Status: Not started.
+Status: Completed on 2026-07-14.
 
 Notes:
 
-- Add API client helpers first.
-- Then update agent detail page.
-- Then add My Agents page.
+- Added authenticated API helpers for checkout, owned-agent lookup, and workflow download.
+- Agent detail page now supports signed-out purchase prompts, ownership checks, simulated purchase, duplicate-purchase handling, and JSON download.
+- Login now supports a `redirect` query so users can return to the agent detail page after signing in.
+- The full dashboard-style `/my-agents` page remains tracked separately in Step 5.
 
 ### Step 4: Auth Tests
 

@@ -25,6 +25,7 @@ export default function LoginPage() {
     : searchParams.get('reset') === 'true'
       ? 'Password reset successfully! You can now log in.'
       : '';
+  const redirectTo = searchParams.get('redirect');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,7 +33,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate(redirectTo?.startsWith('/') ? redirectTo : '/');
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Failed to log in'));
     } finally {

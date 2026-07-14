@@ -43,6 +43,24 @@ export interface TestResult {
   }[];
 }
 
+export interface PurchasedAgent {
+  purchaseId: string;
+  purchasedAt: string;
+  amount: number;
+  agent: MarketplaceAgent;
+}
+
+export interface CheckoutResult {
+  purchase: {
+    id: string;
+    userId: string;
+    agentId: string;
+    amount: number;
+    createdAt: string;
+  };
+  message: string;
+}
+
 interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -68,6 +86,16 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> 
   return json.data;
 }
 
+function withAuth(token: string, options: RequestInit = {}): RequestInit {
+  return {
+    ...options,
+    headers: {
+      ...options.headers,
+      Authorization: `Bearer ${token}`,
+    },
+  };
+}
+
 export async function fetchAgents(params: FetchAgentsParams = {}): Promise<AgentsResponse> {
   const searchParams = new URLSearchParams();
   if (params.page) searchParams.set('page', String(params.page));
@@ -91,6 +119,23 @@ export async function fetchCategories(): Promise<string[]> {
 
 export async function testAgent(id: string): Promise<TestResult> {
   return apiFetch<TestResult>(`/api/agents/${id}/test`, { method: 'POST' });
+}
+
+export async function checkoutAgent(agentId: string, token: string): Promise<CheckoutResult> {
+  return apiFetch<CheckoutResult>(`/api/checkout/${agentId}`, withAuth(token, { method: 'POST' }));
+}
+
+export async function fetchMyAgents(token: string): Promise<PurchasedAgent[]> {
+  return apiFetch<PurchasedAgent[]>('/api/my-agents', withAuth(token));
+}
+
+export async function downloadAgentWorkflow(agentId: string, token: string): Promise<Blob> {
+  const res = await fetch(apiUrl(`/api/agents/${agentId}/download`), withAuth(token));
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.error || `API error: ${res.status} ${res.statusText}`);
+  }
+  return res.blob();
 }
 
 export async function registerUser(email: string, password: string, name: string) {

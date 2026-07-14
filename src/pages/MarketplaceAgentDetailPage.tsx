@@ -1,18 +1,46 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Tag, Layers, DollarSign, Play, CheckCircle, Clock, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Tag,
+  Layers,
+  DollarSign,
+  Play,
+  CheckCircle,
+  Clock,
+  Loader2,
+  ShoppingCart,
+  Download,
+  Lock,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { fetchAgentById, testAgent } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { getErrorMessage } from '@/lib/errors';
+import {
+  checkoutAgent,
+  downloadAgentWorkflow,
+  fetchAgentById,
+  fetchMyAgents,
+  testAgent,
+} from '@/services/api';
 import type { MarketplaceAgentDetail, TestResult } from '@/services/api';
 
 export default function MarketplaceAgentDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const { isAuthenticated, token } = useAuth();
   const [agent, setAgent] = useState<MarketplaceAgentDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [testing, setTesting] = useState(false);
+  const [checkingOwnership, setCheckingOwnership] = useState(false);
+  const [isOwned, setIsOwned] = useState(false);
+  const [purchaseMessage, setPurchaseMessage] = useState('');
+  const [purchaseError, setPurchaseError] = useState('');
+  const [purchasing, setPurchasing] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -22,6 +50,26 @@ export default function MarketplaceAgentDetailPage() {
       .catch(() => setError('Failed to load agent details.'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (!id || !token) {
+      setIsOwned(false);
+      setPurchaseMessage('');
+      setPurchaseError('');
+      return;
+    }
+
+    setCheckingOwnership(true);
+    fetchMyAgents(token)
+      .then((purchases) => {
+        const owned = purchases.some((purchase) => purchase.agent.id === id);
+        setIsOwned(owned);
+      })
+      .catch(() => {
+        setIsOwned(false);
+      })
+      .finally(() => setCheckingOwnership(false));
+  }, [id, token]);
 
   const handleTest = async () => {
     if (!id) return;
@@ -34,6 +82,49 @@ export default function MarketplaceAgentDetailPage() {
       setError('Failed to run test simulation.');
     } finally {
       setTesting(false);
+    }
+  };
+
+  const handlePurchase = async () => {
+    if (!id || !token) return;
+    setPurchasing(true);
+    setPurchaseError('');
+    setPurchaseMessage('');
+    try {
+      const result = await checkoutAgent(id, token);
+      setIsOwned(true);
+      setPurchaseMessage(result.message);
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Failed to purchase agent');
+      if (message.toLowerCase().includes('already purchased')) {
+        setIsOwned(true);
+        setPurchaseMessage('You already own this agent.');
+      } else {
+        setPurchaseError(message);
+      }
+    } finally {
+      setPurchasing(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!id || !token || !agent) return;
+    setDownloading(true);
+    setPurchaseError('');
+    try {
+      const blob = await downloadAgentWorkflow(id, token);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${agent.name.replace(/[^a-z0-9-_]+/gi, '-').replace(/^-|-$/g, '') || 'workflow'}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      setPurchaseError(getErrorMessage(err, 'Failed to download workflow'));
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -155,7 +246,71 @@ export default function MarketplaceAgentDetailPage() {
               </>
             )}
           </Button>
+          {isAuthenticated ? (
+            isOwned ? (
+              <Button
+                onClick={handleDownload}
+                disabled={downloading || checkingOwnership}
+                variant="outline"
+                className="border-cyan/30 text-cyan hover:bg-cyan/10 font-semibold px-8 py-3 rounded-full"
+              >
+                {downloading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5 mr-2" />
+                    Download Workflow
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                onClick={handlePurchase}
+                disabled={purchasing || checkingOwnership}
+                variant="outline"
+                className="border-purple/40 text-purple hover:bg-purple/10 font-semibold px-8 py-3 rounded-full"
+              >
+                {purchasing || checkingOwnership ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    {checkingOwnership ? 'Checking...' : 'Purchasing...'}
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    {agent.price === 0 ? 'Claim Agent' : 'Purchase Agent'}
+                  </>
+                )}
+              </Button>
+            )
+          ) : (
+            <Button
+              asChild
+              variant="outline"
+              className="border-purple/40 text-purple hover:bg-purple/10 font-semibold px-8 py-3 rounded-full"
+            >
+              <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`}>
+                <Lock className="w-5 h-5 mr-2" />
+                Sign In to Purchase
+              </Link>
+            </Button>
+          )}
         </motion.div>
+
+        {(purchaseMessage || purchaseError) && (
+          <div
+            className={`mb-8 p-4 rounded-xl border text-sm ${
+              purchaseError
+                ? 'bg-red-500/10 border-red-500/20 text-red-400'
+                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+            }`}
+          >
+            {purchaseError || purchaseMessage}
+          </div>
+        )}
 
         {/* Test Results */}
         {testResult && (
