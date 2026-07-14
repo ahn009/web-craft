@@ -28,6 +28,7 @@ const TermsPage = lazy(() => import('@/pages/legal/TermsPage'));
 const SecurityPage = lazy(() => import('@/pages/legal/SecurityPage'));
 const MarketplacePage = lazy(() => import('@/pages/MarketplacePage'));
 const MarketplaceAgentDetailPage = lazy(() => import('@/pages/MarketplaceAgentDetailPage'));
+const MyAgentsPage = lazy(() => import('@/pages/MyAgentsPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 // Auth pages
@@ -79,6 +80,7 @@ export const router = createBrowserRouter([
       { path: 'security', element: <SuspenseWrapper><SecurityPage /></SuspenseWrapper> },
       { path: 'marketplace', element: <SuspenseWrapper><MarketplacePage /></SuspenseWrapper> },
       { path: 'marketplace/:id', element: <SuspenseWrapper><MarketplaceAgentDetailPage /></SuspenseWrapper> },
+      { path: 'my-agents', element: <SuspenseWrapper><MyAgentsPage /></SuspenseWrapper> },
       // Auth routes
       { path: 'login', element: <SuspenseWrapper><LoginPage /></SuspenseWrapper> },
       { path: 'register', element: <SuspenseWrapper><RegisterPage /></SuspenseWrapper> },

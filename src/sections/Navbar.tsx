@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, Sparkles, LogIn, LogOut } from 'lucide-react';
+import { Menu, Sparkles, LogIn, LogOut, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
@@ -110,6 +110,12 @@ export default function Navbar() {
                     {user?.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border/50" />
+                  <DropdownMenuItem asChild className="text-foreground focus:text-cyan focus:bg-cyan/10 cursor-pointer">
+                    <Link to="/my-agents">
+                      <ShoppingBag className="w-4 h-4 mr-2" />
+                      My Agents
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={logout}
                     className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer"
@@ -220,6 +226,14 @@ export default function Navbar() {
                           <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                         </div>
                       </div>
+                      <Link to="/my-agents" onClick={() => setIsOpen(false)} className="w-full">
+                        <Button
+                          variant="outline"
+                          className="w-full gap-2 border-cyan/30 text-cyan hover:bg-cyan/10 rounded-lg text-xs py-1.5"
+                        >
+                          <ShoppingBag className="w-3 h-3" /> My Agents
+                        </Button>
+                      </Link>
                       <Button
                         onClick={() => { logout(); setIsOpen(false); }}
                         variant="outline"

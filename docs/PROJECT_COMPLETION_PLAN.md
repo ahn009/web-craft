@@ -408,7 +408,7 @@ Frontend build passes, but Vite warns about large chunks:
 | API URL config | High | Completed |
 | Purchase/download UI | High | Completed |
 | Auth/test mismatch | High | Completed |
-| My Agents page | Medium | Not started |
+| My Agents page | Medium | Completed |
 | Payment provider/demo mode | Medium | Not started |
 | Automated tests | Medium | Not started |
 | Production config | Medium | Not started |
@@ -466,12 +466,13 @@ Notes:
 - Updated `test-api.sh` to register, assert login is blocked before verification, fetch the test token, verify email, then log in.
 - Updated env examples and README with the test-route requirement.
 
-### Step 5: Production Readiness
+### Step 5: My Agents Page
 
-Status: Not started.
+Status: Completed on 2026-07-14.
 
 Notes:
 
-- Harden env parsing.
-- Update README deployment instructions.
-- Verify Docker flow.
+- Added `/my-agents` route for authenticated purchased-agent access.
+- Users can see purchased agents, purchase dates, node counts, and paid amount.
+- Users can download purchased workflow JSON files from the page.
+- Navbar exposes My Agents for authenticated users on desktop and mobile.
