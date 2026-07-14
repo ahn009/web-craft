@@ -6,6 +6,7 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   resendVerificationSchema,
+  testVerificationTokenSchema,
 } from "./auth.schema.js";
 import {
   registerUser,
@@ -15,6 +16,7 @@ import {
   resetPassword,
   resendVerification,
 } from "./auth.service.js";
+import { env } from "../../config/env.config.js";
 import { success, error } from "../../utils/response.util.js";
 
 function getErrorMessage(e: unknown): string {
@@ -109,5 +111,32 @@ export default async function authRoutes(fastify: FastifyInstance) {
     } catch (e: unknown) {
       return reply.status(429).send(error(getErrorMessage(e)));
     }
+  });
+
+  fastify.get("/api/test/verification-token", async (request, reply) => {
+    if (!env.ENABLE_TEST_ROUTES || env.NODE_ENV === "production") {
+      return reply.status(404).send(error("Not found"));
+    }
+
+    const parsed = testVerificationTokenSchema.safeParse(request.query);
+    if (!parsed.success) {
+      return reply.status(400).send(error(parsed.error.errors[0].message));
+    }
+
+    const token = await fastify.prisma.verificationToken.findFirst({
+      where: {
+        type: "EMAIL_VERIFICATION",
+        usedAt: null,
+        user: { email: parsed.data.email },
+      },
+      orderBy: { createdAt: "desc" },
+      select: { token: true, expiresAt: true },
+    });
+
+    if (!token) {
+      return reply.status(404).send(error("Verification token not found"));
+    }
+
+    return success(token);
   });
 }

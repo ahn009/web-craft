@@ -407,7 +407,7 @@ Frontend build passes, but Vite warns about large chunks:
 | Lint/code hygiene | High | Completed |
 | API URL config | High | Completed |
 | Purchase/download UI | High | Completed |
-| Auth/test mismatch | High | Not started |
+| Auth/test mismatch | High | Completed |
 | My Agents page | Medium | Not started |
 | Payment provider/demo mode | Medium | Not started |
 | Automated tests | Medium | Not started |
@@ -457,11 +457,14 @@ Notes:
 
 ### Step 4: Auth Tests
 
-Status: Not started.
+Status: Completed on 2026-07-14.
 
 Notes:
 
-- Decide whether to add a test-only route or make the script consume console/database verification token.
+- Added `ENABLE_TEST_ROUTES` guarded backend support for fetching test verification tokens.
+- The test helper route returns 404 unless explicitly enabled and is disabled in production.
+- Updated `test-api.sh` to register, assert login is blocked before verification, fetch the test token, verify email, then log in.
+- Updated env examples and README with the test-route requirement.
 
 ### Step 5: Production Readiness
 

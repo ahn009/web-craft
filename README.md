@@ -35,6 +35,8 @@ npx prisma migrate dev
 npm run dev             # Starts on http://localhost:3000
 ```
 
+To run `test-api.sh`, start the backend with `ENABLE_TEST_ROUTES=true` and `NODE_ENV` set to `development` or `test`. The test-only verification endpoint is disabled in production.
+
 ### Frontend Setup
 
 ```bash

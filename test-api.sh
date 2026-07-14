@@ -56,6 +56,7 @@ echo -e "${CYAN} AI Agent Marketplace - API Test Suite${NC}"
 echo -e "${CYAN}=============================================${NC}"
 echo -e "Base URL: $BASE_URL"
 echo -e "Test user: $USER_EMAIL"
+echo -e "Auth verification: requires backend ENABLE_TEST_ROUTES=true for this script"
 echo ""
 
 # -----------------------------------------------
@@ -121,7 +122,31 @@ RESP=$(curl -s -X POST "$BASE_URL/api/auth/register" \
   -H 'Content-Type: application/json' \
   -d "{\"email\":\"$USER_EMAIL\",\"password\":\"$USER_PASSWORD\",\"name\":\"$USER_NAME\"}")
 assert_contains "Register returns success" "$RESP" '"success":true'
-assert_contains "Register returns token" "$RESP" '"token"'
+assert_contains "Register asks for email verification" "$RESP" 'verify your account'
+
+# Login should be blocked before email verification
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE_URL/api/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d "{\"email\":\"$USER_EMAIL\",\"password\":\"$USER_PASSWORD\"}")
+assert_status "Login before email verification returns 403" "$STATUS" "403"
+
+# Fetch verification token from guarded test-only route
+VERIFY_RESP=$(curl -s -G "$BASE_URL/api/test/verification-token" \
+  --data-urlencode "email=$USER_EMAIL")
+assert_contains "Test route returns verification token" "$VERIFY_RESP" '"token"'
+
+VERIFY_TOKEN=$(echo "$VERIFY_RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['data']['token'])" 2>/dev/null)
+if [ -z "$VERIFY_TOKEN" ]; then
+  echo -e "  ${RED}FAIL${NC} Could not extract verification token."
+  echo -e "       Start backend with ENABLE_TEST_ROUTES=true and NODE_ENV!=production."
+  exit 1
+fi
+
+# POST /api/auth/verify-email
+RESP=$(curl -s -X POST "$BASE_URL/api/auth/verify-email" \
+  -H 'Content-Type: application/json' \
+  -d "{\"token\":\"$VERIFY_TOKEN\"}")
+assert_contains "Email verification returns success" "$RESP" '"success":true'
 
 # POST /api/auth/login
 RESP=$(curl -s -X POST "$BASE_URL/api/auth/login" \

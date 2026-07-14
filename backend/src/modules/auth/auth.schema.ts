@@ -28,9 +28,14 @@ export const resendVerificationSchema = z.object({
   email: z.string().email(),
 });
 
+export const testVerificationTokenSchema = z.object({
+  email: z.string().email(),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ResendVerificationInput = z.infer<typeof resendVerificationSchema>;
+export type TestVerificationTokenInput = z.infer<typeof testVerificationTokenSchema>;
