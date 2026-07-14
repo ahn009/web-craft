@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { env } from "../../config/env.config.js";
 import { success, error } from "../../utils/response.util.js";
 
 export default async function purchaseRoutes(fastify: FastifyInstance) {
@@ -8,6 +9,10 @@ export default async function purchaseRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const userId = request.user.id;
       const { agentId } = request.params;
+
+      if (env.CHECKOUT_MODE !== "demo") {
+        return reply.status(501).send(error("Checkout is disabled. Configure a payment provider before enabling paid purchases."));
+      }
 
       const agent = await fastify.prisma.agent.findUnique({ where: { id: agentId } });
       if (!agent) return reply.status(404).send(error("Agent not found"));
@@ -27,7 +32,8 @@ export default async function purchaseRoutes(fastify: FastifyInstance) {
 
       return success({
         purchase,
-        message: "Purchase successful (simulated)",
+        checkoutMode: env.CHECKOUT_MODE,
+        message: "Demo access granted. No payment was processed.",
       });
     }
   );

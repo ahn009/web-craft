@@ -51,6 +51,7 @@ export interface PurchasedAgent {
 }
 
 export interface CheckoutResult {
+  checkoutMode: 'demo' | 'disabled';
   purchase: {
     id: string;
     userId: string;

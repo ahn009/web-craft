@@ -409,7 +409,7 @@ Frontend build passes, but Vite warns about large chunks:
 | Purchase/download UI | High | Completed |
 | Auth/test mismatch | High | Completed |
 | My Agents page | Medium | Completed |
-| Payment provider/demo mode | Medium | Not started |
+| Payment provider/demo mode | Medium | Completed |
 | Automated tests | Medium | Not started |
 | Production config | Medium | Not started |
 | Performance optimization | Low | Not started |
@@ -476,3 +476,15 @@ Notes:
 - Users can see purchased agents, purchase dates, node counts, and paid amount.
 - Users can download purchased workflow JSON files from the page.
 - Navbar exposes My Agents for authenticated users on desktop and mobile.
+
+### Step 6: Checkout Demo Mode
+
+Status: Completed on 2026-07-14.
+
+Notes:
+
+- Added `CHECKOUT_MODE=demo | disabled`.
+- Demo checkout explicitly says no payment was processed.
+- Disabled mode blocks checkout with a payment-provider configuration error.
+- Frontend copy now says "Claim Demo Access" / "Simulate Purchase" instead of implying real payment.
+- Env examples and README document the demo checkout behavior.

@@ -65,7 +65,7 @@ export default function MyAgentsPage() {
           </div>
           <h1 className="text-3xl font-bold mb-3">Sign in to view your agents</h1>
           <p className="text-muted-foreground mb-8">
-            Your purchased n8n workflows are available from your account after login.
+            Your claimed demo workflows are available from your account after login.
           </p>
           <Button asChild className="bg-gradient-to-r from-cyan to-cyan-600 text-navy-900 font-semibold rounded-full px-8">
             <Link to="/login?redirect=/my-agents">Sign In</Link>
@@ -84,11 +84,11 @@ export default function MyAgentsPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan/10 text-cyan text-sm font-medium mb-4">
             <ShoppingBag className="w-4 h-4" />
-            Purchased Workflows
+            Claimed Workflows
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">My Agents</h1>
           <p className="text-muted-foreground max-w-2xl">
-            Download the workflow JSON for agents you have purchased or claimed from the marketplace.
+            Download the workflow JSON for agents you have claimed from the marketplace demo flow.
           </p>
         </motion.div>
 
@@ -142,7 +142,7 @@ export default function MyAgentsPage() {
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="text-xs text-muted-foreground">
-                    {item.agent.nodeCount} nodes · Purchased {new Date(item.purchasedAt).toLocaleDateString()}
+                    {item.agent.nodeCount} nodes · Claimed {new Date(item.purchasedAt).toLocaleDateString()}
                   </div>
                   <Button
                     onClick={() => handleDownload(item)}

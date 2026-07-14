@@ -10,6 +10,7 @@ const envSchema = z.object({
   SENDGRID_API_KEY: z.string().default(""),
   SENDGRID_FROM_EMAIL: z.string().email().default("noreply@webcraft.ai"),
   ENABLE_TEST_ROUTES: z.coerce.boolean().default(false),
+  CHECKOUT_MODE: z.enum(["demo", "disabled"]).default("demo"),
 });
 
 export const env = envSchema.parse(process.env);

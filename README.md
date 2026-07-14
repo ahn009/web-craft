@@ -37,6 +37,8 @@ npm run dev             # Starts on http://localhost:3000
 
 To run `test-api.sh`, start the backend with `ENABLE_TEST_ROUTES=true` and `NODE_ENV` set to `development` or `test`. The test-only verification endpoint is disabled in production.
 
+Checkout currently runs in demo mode with `CHECKOUT_MODE=demo`; it records access without processing payment. Set `CHECKOUT_MODE=disabled` to block checkout until a real payment provider is integrated.
+
 ### Frontend Setup
 
 ```bash
@@ -76,6 +78,7 @@ npm run dev             # Starts on http://localhost:5173
 DATABASE_URL=postgresql://user:password@localhost:5432/webcraft
 JWT_SECRET=your-secret-key
 PORT=3000
+CHECKOUT_MODE=demo
 ```
 
 ### Frontend (`.env`)

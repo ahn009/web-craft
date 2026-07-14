@@ -95,7 +95,7 @@ export default function MarketplaceAgentDetailPage() {
       setIsOwned(true);
       setPurchaseMessage(result.message);
     } catch (err: unknown) {
-      const message = getErrorMessage(err, 'Failed to purchase agent');
+      const message = getErrorMessage(err, 'Failed to claim demo access');
       if (message.toLowerCase().includes('already purchased')) {
         setIsOwned(true);
         setPurchaseMessage('You already own this agent.');
@@ -281,7 +281,7 @@ export default function MarketplaceAgentDetailPage() {
                 ) : (
                   <>
                     <ShoppingCart className="w-5 h-5 mr-2" />
-                    {agent.price === 0 ? 'Claim Agent' : 'Purchase Agent'}
+                    {agent.price === 0 ? 'Claim Demo Access' : 'Simulate Purchase'}
                   </>
                 )}
               </Button>
@@ -294,7 +294,7 @@ export default function MarketplaceAgentDetailPage() {
             >
               <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`}>
                 <Lock className="w-5 h-5 mr-2" />
-                Sign In to Purchase
+                Sign In to Claim
               </Link>
             </Button>
           )}

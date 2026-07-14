@@ -172,7 +172,7 @@ RESP=$(curl -s -X POST "$BASE_URL/api/checkout/$AGENT_ID" \
   -H "Authorization: Bearer $TOKEN")
 assert_contains "Checkout returns success" "$RESP" '"success":true'
 assert_contains "Checkout returns purchase" "$RESP" '"purchase"'
-assert_contains "Checkout has success message" "$RESP" '"Purchase successful'
+assert_contains "Checkout has demo success message" "$RESP" '"Demo access granted'
 
 # GET /api/my-agents
 RESP=$(curl -s "$BASE_URL/api/my-agents" \
