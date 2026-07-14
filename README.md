@@ -39,6 +39,7 @@ npm run dev             # Starts on http://localhost:3000
 
 ```bash
 npm install
+cp .env.example .env   # Optional: set VITE_API_URL=http://localhost:3000 for split dev
 npm run dev             # Starts on http://localhost:5173
 ```
 
@@ -74,6 +75,14 @@ DATABASE_URL=postgresql://user:password@localhost:5432/webcraft
 JWT_SECRET=your-secret-key
 PORT=3000
 ```
+
+### Frontend (`.env`)
+
+```
+VITE_API_URL=http://localhost:3000
+```
+
+If the frontend is served by the backend in Docker/production, leave `VITE_API_URL` empty so requests use the same origin.
 
 ## Project Structure
 

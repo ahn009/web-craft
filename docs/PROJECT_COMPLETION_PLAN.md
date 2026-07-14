@@ -80,7 +80,7 @@ Last reviewed on 2026-07-14.
 
 ### Problem
 
-The frontend hardcodes `http://localhost:3000` in multiple places. This works locally but breaks when deployed to a real domain or Docker same-origin setup.
+Previously, the frontend hardcoded `http://localhost:3000` in multiple places. That works locally but breaks when deployed to a real domain or Docker same-origin setup.
 
 ### Current Files
 
@@ -405,7 +405,7 @@ Frontend build passes, but Vite warns about large chunks:
 | Area | Priority | Status |
 | --- | --- | --- |
 | Lint/code hygiene | High | Completed |
-| API URL config | High | Not started |
+| API URL config | High | Completed |
 | Purchase/download UI | High | Not started |
 | Auth/test mismatch | High | Not started |
 | My Agents page | Medium | Not started |
@@ -434,12 +434,15 @@ Notes:
 
 ### Step 2: API Configuration
 
-Status: Not started.
+Status: Completed on 2026-07-14.
 
 Notes:
 
-- Centralize API base URL.
-- Update auth context to reuse the same API helper or config.
+- Added shared API URL helper in `src/config/api.ts`.
+- `src/services/api.ts` now uses the shared helper.
+- `AuthContext` now reuses auth API service functions instead of duplicating fetch calls.
+- `.env.example` and `README.md` document `VITE_API_URL`.
+- Default behavior uses same-origin API paths when `VITE_API_URL` is empty.
 
 ### Step 3: Marketplace Ownership Flow
 

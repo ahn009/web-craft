@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Search, Filter, ChevronLeft, ChevronRight, Tag, Layers, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchAgents, fetchCategories } from '@/services/api';
+import { getApiDisplayUrl } from '@/config/api';
 import type { MarketplaceAgent, PaginationInfo } from '@/services/api';
 
 export default function MarketplacePage() {
@@ -31,7 +32,7 @@ export default function MarketplacePage() {
       setAgents(data.agents);
       setPagination(data.pagination);
     } catch {
-      setError('Failed to load agents. Make sure the backend is running on localhost:3000.');
+      setError(`Failed to load agents. Make sure the backend API is reachable at ${getApiDisplayUrl()}.`);
     } finally {
       setLoading(false);
     }

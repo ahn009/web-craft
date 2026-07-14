@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000';
+import { apiUrl } from '@/config/api';
 
 export interface MarketplaceAgent {
   id: string;
@@ -59,7 +59,7 @@ interface FetchAgentsParams {
 }
 
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE_URL}${endpoint}`, options);
+  const res = await fetch(apiUrl(endpoint), options);
   if (!res.ok) {
     const json = await res.json().catch(() => null);
     throw new Error(json?.error || `API error: ${res.status} ${res.statusText}`);
