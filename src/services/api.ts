@@ -62,6 +62,15 @@ export interface CheckoutResult {
   message: string;
 }
 
+export interface UserCredentialSafe {
+  id: string;
+  provider: string;
+  label: string;
+  lastFour?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -137,6 +146,37 @@ export async function downloadAgentWorkflow(agentId: string, token: string): Pro
     throw new Error(json?.error || `API error: ${res.status} ${res.statusText}`);
   }
   return res.blob();
+}
+
+export async function fetchCredentials(token: string): Promise<UserCredentialSafe[]> {
+  return apiFetch<UserCredentialSafe[]>('/api/credentials', withAuth(token));
+}
+
+export async function createCredential(
+  token: string,
+  input: { provider: string; label: string; secret: string }
+): Promise<UserCredentialSafe> {
+  return apiFetch<UserCredentialSafe>('/api/credentials', withAuth(token, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  }));
+}
+
+export async function updateCredential(
+  token: string,
+  credentialId: string,
+  input: { provider?: string; label?: string; secret?: string }
+): Promise<UserCredentialSafe> {
+  return apiFetch<UserCredentialSafe>(`/api/credentials/${credentialId}`, withAuth(token, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  }));
+}
+
+export async function deleteCredential(token: string, credentialId: string): Promise<{ deleted: boolean }> {
+  return apiFetch<{ deleted: boolean }>(`/api/credentials/${credentialId}`, withAuth(token, { method: 'DELETE' }));
 }
 
 export async function registerUser(email: string, password: string, name: string) {

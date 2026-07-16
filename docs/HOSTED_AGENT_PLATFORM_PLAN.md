@@ -527,17 +527,19 @@ Acceptance criteria:
 
 ### Phase 3: User Credential Vault
 
+Status: Complete on 2026-07-16.
+
 Goal:
 
 Let users securely save credentials.
 
 Tasks:
 
-- Add credential create/list/update/delete APIs.
-- Return safe metadata only.
-- Add frontend credential form components.
-- Add validation per provider where possible.
-- Add masking/label display.
+- [x] Add credential create/list/update/delete APIs.
+- [x] Return safe metadata only.
+- [x] Add frontend credential form components.
+- [x] Add validation per provider where possible.
+- [x] Add masking/label display.
 
 Acceptance criteria:
 

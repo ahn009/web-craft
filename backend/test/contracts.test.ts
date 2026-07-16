@@ -8,6 +8,8 @@ import { parseEnv } from "../src/config/env.config.js";
 import { decryptSecret, encryptSecret, normalizeEncryptionKey } from "../src/utils/crypto.util.js";
 import { userCanAccessAgent } from "../src/utils/access.util.js";
 import { detectCredentialRequirements } from "../src/modules/credentials/credential-requirements.service.js";
+import { createCredentialSchema, updateCredentialSchema } from "../src/modules/credentials/credentials.schema.js";
+import { toSafeCredential } from "../src/modules/credentials/credentials.service.js";
 
 test("listAgentsSchema applies defaults and coerces numeric query params", () => {
   const parsed = listAgentsSchema.parse({ page: "2", limit: "10", sort: "price_asc" });
@@ -187,4 +189,29 @@ test("credential requirement detector deduplicates same node credential slot", (
   );
 
   assert.equal(requirements.length, 1);
+});
+
+test("credential schemas require secret on create and allow metadata-only updates", () => {
+  assert.equal(
+    createCredentialSchema.safeParse({ provider: "openai", label: "OpenAI", secret: "sk-test" }).success,
+    true
+  );
+  assert.equal(createCredentialSchema.safeParse({ provider: "openai", label: "OpenAI" }).success, false);
+  assert.equal(updateCredentialSchema.safeParse({ label: "New label" }).success, true);
+});
+
+test("safe credential response never includes encrypted payload", () => {
+  const safe = toSafeCredential({
+    id: "credential-1",
+    userId: "user-1",
+    provider: "openai",
+    label: "OpenAI",
+    encryptedPayload: "v1:secret",
+    lastFour: "test",
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+  });
+
+  assert.deepEqual(Object.keys(safe), ["id", "provider", "label", "lastFour", "createdAt", "updatedAt"]);
+  assert.equal("encryptedPayload" in safe, false);
 });
