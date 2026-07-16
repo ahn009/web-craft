@@ -12,17 +12,41 @@ enum TokenType {
   PASSWORD_RESET
 }
 
+enum AgentInstanceStatus {
+  DRAFT
+  READY
+  DISABLED
+  ERROR
+}
+
+enum AgentExecutionStatus {
+  QUEUED
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum AgentExecutionLogLevel {
+  INFO
+  WARN
+  ERROR
+}
+
 model User {
-  id              String              @id @default(cuid())
-  email           String              @unique
-  name            String
-  password        String
-  emailVerified   Boolean             @default(false)
-  emailVerifiedAt DateTime?
-  purchases       Purchase[]
-  tokens          VerificationToken[]
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  id                  String              @id @default(cuid())
+  email               String              @unique
+  name                String
+  password            String
+  emailVerified       Boolean             @default(false)
+  emailVerifiedAt     DateTime?
+  purchases           Purchase[]
+  tokens              VerificationToken[]
+  agentInstances      AgentInstance[]
+  userCredentials     UserCredential[]
+  agentExecutions     AgentExecution[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
 }
 
 model VerificationToken {
@@ -37,18 +61,21 @@ model VerificationToken {
 }
 
 model Agent {
-  id          String     @id @default(cuid())
-  workflowId  String     @unique
-  name        String
-  description String
-  category    String
-  price       Float
-  tags        String     @default("[]")
-  nodeCount   Int
-  rawJson     String
-  purchases   Purchase[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id                         String                       @id @default(cuid())
+  workflowId                 String                       @unique
+  name                       String
+  description                String
+  category                   String
+  price                      Float
+  tags                       String                       @default("[]")
+  nodeCount                  Int
+  rawJson                    String
+  purchases                  Purchase[]
+  instances                  AgentInstance[]
+  credentialRequirements     AgentCredentialRequirement[]
+  executions                 AgentExecution[]
+  createdAt                  DateTime                     @default(now())
+  updatedAt                  DateTime                     @updatedAt
 }
 
 model Purchase {
@@ -61,4 +88,109 @@ model Purchase {
   createdAt DateTime @default(now())
 
   @@unique([userId, agentId])
+}
+
+model AgentInstance {
+  id                    String                    @id @default(cuid())
+  userId                String
+  agentId               String
+  status                AgentInstanceStatus       @default(DRAFT)
+  displayName           String?
+  configuration         String                    @default("{}")
+  n8nWorkflowId         String?
+  lastRunAt             DateTime?
+  user                  User                      @relation(fields: [userId], references: [id])
+  agent                 Agent                     @relation(fields: [agentId], references: [id])
+  credentialLinks       AgentInstanceCredential[]
+  executions            AgentExecution[]
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+
+  @@unique([userId, agentId])
+  @@index([userId])
+  @@index([agentId])
+}
+
+model AgentCredentialRequirement {
+  id                    String                    @id @default(cuid())
+  agentId               String
+  nodeName              String
+  nodeType              String
+  credentialType        String
+  displayName           String
+  required              Boolean                   @default(true)
+  schema                String                    @default("{}")
+  agent                 Agent                     @relation(fields: [agentId], references: [id])
+  credentialLinks       AgentInstanceCredential[]
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+
+  @@index([agentId])
+}
+
+model UserCredential {
+  id                    String                    @id @default(cuid())
+  userId                String
+  provider              String
+  label                 String
+  encryptedPayload      String
+  lastFour              String?
+  user                  User                      @relation(fields: [userId], references: [id])
+  instanceLinks         AgentInstanceCredential[]
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+
+  @@index([userId])
+}
+
+model AgentInstanceCredential {
+  id                         String                     @id @default(cuid())
+  agentInstanceId            String
+  credentialRequirementId    String
+  userCredentialId           String
+  agentInstance              AgentInstance              @relation(fields: [agentInstanceId], references: [id])
+  credentialRequirement      AgentCredentialRequirement @relation(fields: [credentialRequirementId], references: [id])
+  userCredential             UserCredential             @relation(fields: [userCredentialId], references: [id])
+  createdAt                  DateTime                   @default(now())
+  updatedAt                  DateTime                   @updatedAt
+
+  @@unique([agentInstanceId, credentialRequirementId])
+  @@index([userCredentialId])
+}
+
+model AgentExecution {
+  id                String                  @id @default(cuid())
+  agentInstanceId   String
+  userId            String
+  agentId           String
+  status            AgentExecutionStatus    @default(QUEUED)
+  input             String                  @default("{}")
+  output            String?
+  error             String?
+  n8nExecutionId    String?
+  startedAt         DateTime?
+  finishedAt        DateTime?
+  agentInstance     AgentInstance           @relation(fields: [agentInstanceId], references: [id])
+  user              User                    @relation(fields: [userId], references: [id])
+  agent             Agent                   @relation(fields: [agentId], references: [id])
+  logs              AgentExecutionLog[]
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+
+  @@index([agentInstanceId])
+  @@index([userId])
+  @@index([agentId])
+  @@index([status])
+}
+
+model AgentExecutionLog {
+  id            String                 @id @default(cuid())
+  executionId   String
+  level         AgentExecutionLogLevel  @default(INFO)
+  message       String
+  metadata      String?
+  execution     AgentExecution         @relation(fields: [executionId], references: [id])
+  createdAt     DateTime               @default(now())
+
+  @@index([executionId])
 }

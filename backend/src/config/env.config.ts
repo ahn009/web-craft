@@ -7,6 +7,11 @@ const weakJwtSecrets = new Set([
   "change-me-in-production",
 ]);
 
+const weakCredentialEncryptionKeys = new Set([
+  "dev-credential-key-change-me-32!",
+  "change-me-credential-key-32-bytes",
+]);
+
 const booleanFromEnv = z.preprocess((value) => {
   if (typeof value !== "string") return value;
 
@@ -28,6 +33,7 @@ export const envSchema = z
     SENDGRID_API_KEY: z.string().default(""),
     SENDGRID_FROM_EMAIL: z.string().email().default("noreply@webcraft.ai"),
     ADMIN_EMAIL: z.string().email().default("admin@webcraft.ai"),
+    CREDENTIAL_ENCRYPTION_KEY: z.string().default("dev-credential-key-change-me-32!"),
     ENABLE_TEST_ROUTES: booleanFromEnv.default(false),
     CHECKOUT_MODE: z.enum(["demo", "disabled"]).default("demo"),
   })
@@ -55,6 +61,14 @@ export const envSchema = z
         code: z.ZodIssueCode.custom,
         path: ["ENABLE_TEST_ROUTES"],
         message: "ENABLE_TEST_ROUTES cannot be true in production",
+      });
+    }
+
+    if (weakCredentialEncryptionKeys.has(env.CREDENTIAL_ENCRYPTION_KEY) || env.CREDENTIAL_ENCRYPTION_KEY.length < 32) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["CREDENTIAL_ENCRYPTION_KEY"],
+        message: "Production CREDENTIAL_ENCRYPTION_KEY must be unique and at least 32 characters",
       });
     }
   });

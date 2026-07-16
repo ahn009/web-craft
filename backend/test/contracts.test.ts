@@ -5,6 +5,8 @@ import { loginSchema, registerSchema, verifyEmailSchema } from "../src/modules/a
 import { simulateTest } from "../src/modules/agents/agents.service.js";
 import { error, success } from "../src/utils/response.util.js";
 import { parseEnv } from "../src/config/env.config.js";
+import { decryptSecret, encryptSecret, normalizeEncryptionKey } from "../src/utils/crypto.util.js";
+import { userCanAccessAgent } from "../src/utils/access.util.js";
 
 test("listAgentsSchema applies defaults and coerces numeric query params", () => {
   const parsed = listAgentsSchema.parse({ page: "2", limit: "10", sort: "price_asc" });
@@ -55,6 +57,7 @@ test("production env parser accepts ENABLE_TEST_ROUTES=false string", () => {
     NODE_ENV: "production",
     DATABASE_URL: "postgresql://user:password@localhost:5432/webcraft",
     JWT_SECRET: "a-unique-production-secret-with-32-characters",
+    CREDENTIAL_ENCRYPTION_KEY: "unique-credential-key-for-prod-32",
     FRONTEND_URL: "https://example.com",
     ENABLE_TEST_ROUTES: "false",
     CHECKOUT_MODE: "disabled",
@@ -69,9 +72,62 @@ test("production env parser rejects ENABLE_TEST_ROUTES=true string", () => {
       NODE_ENV: "production",
       DATABASE_URL: "postgresql://user:password@localhost:5432/webcraft",
       JWT_SECRET: "a-unique-production-secret-with-32-characters",
+      CREDENTIAL_ENCRYPTION_KEY: "unique-credential-key-for-prod-32",
       FRONTEND_URL: "https://example.com",
       ENABLE_TEST_ROUTES: "true",
       CHECKOUT_MODE: "disabled",
     })
+  );
+});
+
+test("production env parser rejects weak credential encryption key", () => {
+  assert.throws(() =>
+    parseEnv({
+      NODE_ENV: "production",
+      DATABASE_URL: "postgresql://user:password@localhost:5432/webcraft",
+      JWT_SECRET: "a-unique-production-secret-with-32-characters",
+      CREDENTIAL_ENCRYPTION_KEY: "dev-credential-key-change-me-32!",
+      FRONTEND_URL: "https://example.com",
+      ENABLE_TEST_ROUTES: "false",
+      CHECKOUT_MODE: "disabled",
+    })
+  );
+});
+
+test("credential encryption utility round-trips secrets without storing plaintext", () => {
+  const key = "test-credential-key-change-032!!";
+  const secret = "sk-test-super-secret";
+  const encrypted = encryptSecret(secret, key);
+
+  assert.notEqual(encrypted, secret);
+  assert.equal(encrypted.startsWith("v1:"), true);
+  assert.equal(decryptSecret(encrypted, key), secret);
+});
+
+test("credential encryption utility rejects invalid key sizes", () => {
+  assert.throws(() => normalizeEncryptionKey("short-key"));
+});
+
+test("agent access helper allows admin and purchased users only", async () => {
+  const prisma = {
+    purchase: {
+      findUnique: async ({ where }: { where: { userId_agentId: { userId: string; agentId: string } } }) => {
+        const { userId, agentId } = where.userId_agentId;
+        return userId === "buyer" && agentId === "agent-1" ? { id: "purchase-1" } : null;
+      },
+    },
+  };
+
+  assert.equal(
+    await userCanAccessAgent(prisma as never, { id: "any-user", email: "admin@webcraft.ai" }, "agent-1"),
+    true
+  );
+  assert.equal(
+    await userCanAccessAgent(prisma as never, { id: "buyer", email: "buyer@example.com" }, "agent-1"),
+    true
+  );
+  assert.equal(
+    await userCanAccessAgent(prisma as never, { id: "stranger", email: "stranger@example.com" }, "agent-1"),
+    false
   );
 });
