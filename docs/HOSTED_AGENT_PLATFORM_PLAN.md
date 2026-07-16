@@ -599,18 +599,20 @@ Acceptance criteria:
 
 ### Phase 6: Manual Runs
 
+Status: Complete on 2026-07-16.
+
 Goal:
 
 Run hosted agents from WebCraft.
 
 Tasks:
 
-- Add `POST /api/agent-instances/:id/runs`.
-- Add execution worker.
-- Add run status polling endpoint.
-- Add output/log storage.
-- Add run UI with input editor.
-- Add execution detail page.
+- [x] Add `POST /api/agent-instances/:id/runs`.
+- [x] Add execution worker.
+- [x] Add run status polling endpoint.
+- [x] Add output/log storage.
+- [x] Add run UI with input editor.
+- [x] Add execution detail page.
 
 Acceptance criteria:
 

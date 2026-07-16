@@ -115,6 +115,22 @@ export interface AgentInstance {
   agent?: MarketplaceAgentDetail;
 }
 
+export interface AgentExecution {
+  id: string;
+  agentInstanceId: string;
+  userId: string;
+  agentId: string;
+  status: 'QUEUED' | 'RUNNING' | 'SUCCESS' | 'FAILED' | 'CANCELLED';
+  input: Record<string, unknown>;
+  output: unknown | null;
+  error?: string | null;
+  n8nExecutionId?: string | null;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -222,6 +238,26 @@ export async function updateAgentInstanceCredentials(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ links }),
   }));
+}
+
+export async function createAgentRun(
+  instanceId: string,
+  token: string,
+  input: Record<string, unknown>
+): Promise<AgentExecution> {
+  return apiFetch<AgentExecution>(`/api/agent-instances/${instanceId}/runs`, withAuth(token, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input }),
+  }));
+}
+
+export async function fetchAgentRuns(instanceId: string, token: string): Promise<AgentExecution[]> {
+  return apiFetch<AgentExecution[]>(`/api/agent-instances/${instanceId}/runs`, withAuth(token));
+}
+
+export async function fetchExecution(executionId: string, token: string): Promise<AgentExecution & { logs: unknown[] }> {
+  return apiFetch<AgentExecution & { logs: unknown[] }>(`/api/executions/${executionId}`, withAuth(token));
 }
 
 export async function createCredential(

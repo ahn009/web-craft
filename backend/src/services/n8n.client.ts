@@ -70,4 +70,11 @@ export class N8nClient {
       body: JSON.stringify(input),
     });
   }
+
+  executeWorkflow(workflowId: string, input: Record<string, unknown>) {
+    return this.request<{ id?: string; data?: unknown; finished?: boolean }>(`/api/v1/workflows/${workflowId}/execute`, {
+      method: "POST",
+      body: JSON.stringify({ input }),
+    });
+  }
 }

@@ -10,7 +10,8 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "credentials:backfill": "tsx src/scripts/backfill-credential-requirements.ts"
+    "credentials:backfill": "tsx src/scripts/backfill-credential-requirements.ts",
+    "executions:process": "tsx src/scripts/process-executions.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.0.1",

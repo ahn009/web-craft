@@ -15,6 +15,7 @@ import {
   updateAgentInstanceSchema,
 } from "../src/modules/agent-instances/agent-instances.schema.js";
 import { isN8nConfigured } from "../src/services/n8n.client.js";
+import { createExecutionSchema } from "../src/modules/executions/executions.schema.js";
 
 test("listAgentsSchema applies defaults and coerces numeric query params", () => {
   const parsed = listAgentsSchema.parse({ page: "2", limit: "10", sort: "price_asc" });
@@ -249,4 +250,9 @@ test("env parser accepts optional n8n runtime config", () => {
   assert.equal(parsed.N8N_BASE_URL, "http://localhost:5678");
   assert.equal(parsed.N8N_API_KEY, "dev-key");
   assert.equal(parsed.N8N_TIMEOUT_MS, 20000);
+});
+
+test("execution schema defaults input to an empty object", () => {
+  assert.deepEqual(createExecutionSchema.parse({}), { input: {} });
+  assert.deepEqual(createExecutionSchema.parse({ input: { message: "hi" } }), { input: { message: "hi" } });
 });

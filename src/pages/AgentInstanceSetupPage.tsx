@@ -176,6 +176,11 @@ export default function AgentInstanceSetupPage() {
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Save Setup
               </Button>
+              {instance?.setup.ready && (
+                <Button asChild variant="outline" className="ml-3 border-cyan/30 text-cyan hover:bg-cyan/10">
+                  <Link to={`/agent-instances/${instance.id}/run`}>Run Agent</Link>
+                </Button>
+              )}
             </div>
           </div>
 
