@@ -7,6 +7,7 @@ import { error, success } from "../src/utils/response.util.js";
 import { parseEnv } from "../src/config/env.config.js";
 import { decryptSecret, encryptSecret, normalizeEncryptionKey } from "../src/utils/crypto.util.js";
 import { userCanAccessAgent } from "../src/utils/access.util.js";
+import { detectCredentialRequirements } from "../src/modules/credentials/credential-requirements.service.js";
 
 test("listAgentsSchema applies defaults and coerces numeric query params", () => {
   const parsed = listAgentsSchema.parse({ page: "2", limit: "10", sort: "price_asc" });
@@ -130,4 +131,60 @@ test("agent access helper allows admin and purchased users only", async () => {
     await userCanAccessAgent(prisma as never, { id: "stranger", email: "stranger@example.com" }, "agent-1"),
     false
   );
+});
+
+test("credential requirement detector extracts n8n node credentials", () => {
+  const requirements = detectCredentialRequirements(
+    JSON.stringify({
+      nodes: [
+        {
+          name: "OpenAI Chat",
+          type: "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+          credentials: {
+            openAiApi: { id: "1", name: "OpenAI account" },
+          },
+        },
+        {
+          name: "Google Sheets",
+          type: "n8n-nodes-base.googleSheets",
+          credentials: {
+            googleSheetsOAuth2Api: { id: "2", name: "Google account" },
+          },
+        },
+      ],
+    })
+  );
+
+  assert.equal(requirements.length, 2);
+  assert.deepEqual(
+    requirements.map((requirement) => requirement.credentialType),
+    ["openAiApi", "googleSheetsOAuth2Api"]
+  );
+  assert.equal(requirements[0].displayName, "Open Ai Api");
+  assert.equal(JSON.parse(requirements[0].schema).fields[0].type, "secret");
+});
+
+test("credential requirement detector deduplicates same node credential slot", () => {
+  const requirements = detectCredentialRequirements(
+    JSON.stringify({
+      nodes: [
+        {
+          name: "OpenAI Chat",
+          type: "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+          credentials: {
+            openAiApi: { id: "1", name: "OpenAI account" },
+          },
+        },
+        {
+          name: "OpenAI Chat",
+          type: "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+          credentials: {
+            openAiApi: { id: "1", name: "OpenAI account" },
+          },
+        },
+      ],
+    })
+  );
+
+  assert.equal(requirements.length, 1);
 });

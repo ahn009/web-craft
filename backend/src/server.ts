@@ -10,6 +10,7 @@ import rateLimitPlugin from "./plugins/rate-limit.plugin.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import agentRoutes from "./modules/agents/agents.routes.js";
 import purchaseRoutes from "./modules/purchases/purchases.routes.js";
+import credentialRequirementRoutes from "./modules/credentials/credential-requirements.routes.js";
 import { hasExtractedFiles, extractZip } from "./services/zip-extractor.service.js";
 import { importAgents } from "./services/agent-importer.service.js";
 
@@ -30,6 +31,7 @@ await fastify.register(rateLimitPlugin);
 // Register routes
 await fastify.register(authRoutes);
 await fastify.register(agentRoutes);
+await fastify.register(credentialRequirementRoutes);
 await fastify.register(purchaseRoutes);
 
 // Serve static frontend files in production

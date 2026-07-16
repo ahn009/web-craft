@@ -503,19 +503,21 @@ Acceptance criteria:
 
 ### Phase 2: Credential Requirement Detection
 
+Status: Complete on 2026-07-16.
+
 Goal:
 
 Detect what credentials a workflow needs.
 
 Tasks:
 
-- Parse `Agent.rawJson.nodes`.
-- Extract node credential references.
-- Map n8n credential types to friendly labels.
-- Store detected requirements.
-- Add `GET /api/agents/:id/credential-requirements`.
-- Add admin refresh endpoint.
-- Add seed/backfill script for all agents.
+- [x] Parse `Agent.rawJson.nodes`.
+- [x] Extract node credential references.
+- [x] Map n8n credential types to friendly labels.
+- [x] Store detected requirements.
+- [x] Add `GET /api/agents/:id/credential-requirements`.
+- [x] Add admin refresh endpoint.
+- [x] Add seed/backfill script for all agents.
 
 Acceptance criteria:
 
