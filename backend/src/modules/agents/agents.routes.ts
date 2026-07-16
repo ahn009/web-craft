@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { listAgentsSchema } from "./agents.schema.js";
 import { listAgents, getAgent, getCategories, simulateTest } from "./agents.service.js";
 import { success, error } from "../../utils/response.util.js";
+import { isAdminEmail } from "../../utils/admin.util.js";
 
 export default async function agentRoutes(fastify: FastifyInstance) {
   fastify.get("/api/agents", async (request, reply) => {
@@ -40,13 +41,16 @@ export default async function agentRoutes(fastify: FastifyInstance) {
     { preHandler: [fastify.authenticate] },
     async (request, reply) => {
       const userId = request.user.id;
+      const isAdmin = isAdminEmail(request.user.email);
       const agentId = request.params.id;
 
-      const purchase = await fastify.prisma.purchase.findUnique({
-        where: { userId_agentId: { userId, agentId } },
-      });
-      if (!purchase) {
-        return reply.status(403).send(error("You must purchase this agent before downloading"));
+      if (!isAdmin) {
+        const purchase = await fastify.prisma.purchase.findUnique({
+          where: { userId_agentId: { userId, agentId } },
+        });
+        if (!purchase) {
+          return reply.status(403).send(error("You must purchase this agent before downloading"));
+        }
       }
 
       const agent = await fastify.prisma.agent.findUnique({ where: { id: agentId } });

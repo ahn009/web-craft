@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { env } from "../../config/env.config.js";
 import { success, error } from "../../utils/response.util.js";
+import { isAdminEmail } from "../../utils/admin.util.js";
 
 export default async function purchaseRoutes(fastify: FastifyInstance) {
   fastify.post<{ Params: { agentId: string } }>(
@@ -43,6 +44,41 @@ export default async function purchaseRoutes(fastify: FastifyInstance) {
     { preHandler: [fastify.authenticate] },
     async (request) => {
       const userId = request.user.id;
+
+      if (isAdminEmail(request.user.email)) {
+        const agents = await fastify.prisma.agent.findMany({
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            category: true,
+            price: true,
+            tags: true,
+            nodeCount: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: "desc" },
+        });
+
+        return success(
+          agents.map((agent) => ({
+            purchaseId: `admin-${agent.id}`,
+            purchasedAt: agent.createdAt,
+            amount: 0,
+            agent: {
+              id: agent.id,
+              workflowId: "",
+              name: agent.name,
+              description: agent.description,
+              category: agent.category,
+              price: agent.price,
+              tags: JSON.parse(agent.tags),
+              nodeCount: agent.nodeCount,
+              createdAt: agent.createdAt,
+            },
+          }))
+        );
+      }
 
       const purchases = await fastify.prisma.purchase.findMany({
         where: { userId },

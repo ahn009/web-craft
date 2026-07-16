@@ -27,6 +27,7 @@ export const envSchema = z
     ZIP_PATH: z.string().default("../n8n-workflow-templates-main.zip"),
     SENDGRID_API_KEY: z.string().default(""),
     SENDGRID_FROM_EMAIL: z.string().email().default("noreply@webcraft.ai"),
+    ADMIN_EMAIL: z.string().email().default("admin@webcraft.ai"),
     ENABLE_TEST_ROUTES: booleanFromEnv.default(false),
     CHECKOUT_MODE: z.enum(["demo", "disabled"]).default("demo"),
   })
