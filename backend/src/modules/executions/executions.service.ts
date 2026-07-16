@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { env } from "../../config/env.config.js";
 import type { AuthenticatedUser } from "../../utils/access.util.js";
+import { isAdminEmail } from "../../utils/admin.util.js";
 import { isN8nConfigured, N8nClient } from "../../services/n8n.client.js";
 import type { CreateExecutionInput } from "./executions.schema.js";
 
@@ -24,10 +25,16 @@ function serializeExecution(execution: {
   createdAt: Date;
   updatedAt: Date;
 }) {
+  const durationMs =
+    execution.startedAt && execution.finishedAt
+      ? execution.finishedAt.getTime() - execution.startedAt.getTime()
+      : null;
+
   return {
     ...execution,
     input: parseJson(execution.input) ?? {},
     output: parseJson(execution.output),
+    durationMs,
   };
 }
 
@@ -42,6 +49,13 @@ export async function createAgentExecution(
   });
   if (!instance) return { status: "missing" as const };
   if (instance.status !== "READY") return { status: "not_ready" as const };
+
+  const activeCount = await prisma.agentExecution.count({
+    where: { userId: user.id, status: { in: ["QUEUED", "RUNNING"] } },
+  });
+  if (activeCount >= env.EXECUTION_MAX_ACTIVE_PER_USER) {
+    return { status: "rate_limited" as const };
+  }
 
   const execution = await prisma.agentExecution.create({
     data: {
@@ -61,6 +75,40 @@ export async function createAgentExecution(
   });
 
   return { status: "ok" as const, execution: serializeExecution(execution) };
+}
+
+export async function retryExecution(prisma: PrismaClient, user: AuthenticatedUser, executionId: string) {
+  const execution = await prisma.agentExecution.findFirst({
+    where: { id: executionId, userId: user.id },
+  });
+  if (!execution) return { status: "missing" as const };
+  if (execution.status !== "FAILED") return { status: "not_retryable" as const };
+
+  return createAgentExecution(prisma, user, execution.agentInstanceId, {
+    input: JSON.parse(execution.input),
+  });
+}
+
+export async function listRecentExecutionsForAdmin(prisma: PrismaClient, user: AuthenticatedUser) {
+  if (!isAdminEmail(user.email)) return { status: "forbidden" as const };
+
+  const executions = await prisma.agentExecution.findMany({
+    include: {
+      agent: { select: { name: true } },
+      user: { select: { email: true } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  return {
+    status: "ok" as const,
+    executions: executions.map((execution) => ({
+      ...serializeExecution(execution),
+      agentName: execution.agent.name,
+      userEmail: execution.user.email,
+    })),
+  };
 }
 
 export async function listAgentExecutions(prisma: PrismaClient, user: AuthenticatedUser, agentInstanceId: string) {
@@ -127,12 +175,16 @@ export async function processQueuedExecutions(prisma: PrismaClient, limit = 5) {
         timeoutMs: env.N8N_TIMEOUT_MS,
       });
       const output = await client.executeWorkflow(execution.agentInstance.n8nWorkflowId, JSON.parse(execution.input));
+      const serializedOutput = JSON.stringify(output);
+      if (Buffer.byteLength(serializedOutput, "utf8") > env.EXECUTION_MAX_OUTPUT_BYTES) {
+        throw new Error("Execution output exceeded the configured size limit");
+      }
 
       await prisma.agentExecution.update({
         where: { id: execution.id },
         data: {
           status: "SUCCESS",
-          output: JSON.stringify(output),
+          output: serializedOutput,
           n8nExecutionId: output.id ?? null,
           finishedAt: new Date(),
         },

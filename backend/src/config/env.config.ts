@@ -37,6 +37,8 @@ export const envSchema = z
     N8N_BASE_URL: z.string().url().optional(),
     N8N_API_KEY: z.string().default(""),
     N8N_TIMEOUT_MS: z.coerce.number().positive().default(15000),
+    EXECUTION_MAX_ACTIVE_PER_USER: z.coerce.number().int().positive().default(10),
+    EXECUTION_MAX_OUTPUT_BYTES: z.coerce.number().int().positive().default(1_000_000),
     ENABLE_TEST_ROUTES: booleanFromEnv.default(false),
     CHECKOUT_MODE: z.enum(["demo", "disabled"]).default("demo"),
   })

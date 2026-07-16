@@ -127,6 +127,7 @@ export interface AgentExecution {
   n8nExecutionId?: string | null;
   startedAt?: string | null;
   finishedAt?: string | null;
+  durationMs?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -258,6 +259,10 @@ export async function fetchAgentRuns(instanceId: string, token: string): Promise
 
 export async function fetchExecution(executionId: string, token: string): Promise<AgentExecution & { logs: unknown[] }> {
   return apiFetch<AgentExecution & { logs: unknown[] }>(`/api/executions/${executionId}`, withAuth(token));
+}
+
+export async function retryAgentRun(executionId: string, token: string): Promise<AgentExecution> {
+  return apiFetch<AgentExecution>(`/api/executions/${executionId}/retry`, withAuth(token, { method: 'POST' }));
 }
 
 export async function createCredential(

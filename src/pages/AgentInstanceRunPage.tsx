@@ -7,6 +7,7 @@ import {
   createAgentRun,
   fetchAgentInstance,
   fetchAgentRuns,
+  retryAgentRun,
   type AgentExecution,
   type AgentInstance,
 } from '@/services/api';
@@ -20,6 +21,7 @@ export default function AgentInstanceRunPage() {
   const [input, setInput] = useState('{\n  "message": "Hello"\n}');
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const load = async () => {
@@ -54,6 +56,20 @@ export default function AgentInstanceRunPage() {
       setError(getErrorMessage(err, 'Failed to queue run'));
     } finally {
       setRunning(false);
+    }
+  };
+
+  const handleRetry = async (executionId: string) => {
+    if (!token) return;
+    setRetryingId(executionId);
+    setError('');
+    try {
+      const run = await retryAgentRun(executionId, token);
+      setRuns((items) => [run, ...items]);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to retry run'));
+    } finally {
+      setRetryingId(null);
     }
   };
 
@@ -127,7 +143,22 @@ export default function AgentInstanceRunPage() {
                       <span className="text-sm font-medium">{run.status}</span>
                       <span className="text-xs text-muted-foreground">{new Date(run.createdAt).toLocaleString()}</span>
                     </div>
+                    {typeof run.durationMs === 'number' && (
+                      <p className="mt-1 text-xs text-muted-foreground">{run.durationMs}ms</p>
+                    )}
                     {run.error && <p className="mt-2 text-xs text-red-400">{run.error}</p>}
+                    {run.status === 'FAILED' && (
+                      <Button
+                        onClick={() => handleRetry(run.id)}
+                        disabled={retryingId === run.id}
+                        size="sm"
+                        variant="outline"
+                        className="mt-3 border-cyan/30 text-cyan hover:bg-cyan/10"
+                      >
+                        {retryingId === run.id && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        Retry
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>

@@ -624,20 +624,22 @@ Acceptance criteria:
 
 ### Phase 7: Polish and Reliability
 
+Status: Complete on 2026-07-16.
+
 Goal:
 
 Make the hosted execution experience usable and supportable.
 
 Tasks:
 
-- Add retry button for failed runs.
-- Add run duration and basic metrics.
-- Add admin execution monitor.
-- Add rate limits per user.
-- Add max execution time.
-- Add output size limits.
-- Add better empty/error states.
-- Add docs for supported/unsupported workflow nodes.
+- [x] Add retry button for failed runs.
+- [x] Add run duration and basic metrics.
+- [x] Add admin execution monitor.
+- [x] Add rate limits per user.
+- [x] Add max execution time.
+- [x] Add output size limits.
+- [x] Add better empty/error states.
+- [x] Add docs for supported/unsupported workflow nodes.
 
 Acceptance criteria:
 
@@ -717,6 +719,29 @@ Acceptance criteria:
 - Test execution history permissions.
 
 ## Risks and Decisions
+
+## Supported Workflow Notes
+
+Current hosted execution support is intentionally conservative.
+
+Supported in the first implementation:
+
+- Manually queued agent runs from WebCraft.
+- Workflows imported into an internal n8n runtime.
+- Credential slots detected from n8n node `credentials` metadata.
+- User credentials linked to detected credential requirements.
+- Execution history, status, duration, output, and error recording.
+
+Unsupported until later hardening:
+
+- Public webhook trigger URLs.
+- Scheduled/cron-triggered workflows.
+- OAuth consent flows managed directly by WebCraft.
+- Editing workflow graphs inside WebCraft.
+- Guaranteed compatibility for every community n8n node.
+- Long-running workflows beyond configured n8n/API timeouts.
+
+Unsupported workflows should fail setup or execution with a visible error instead of silently hanging.
 
 ### Biggest Risks
 

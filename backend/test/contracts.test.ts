@@ -245,11 +245,15 @@ test("env parser accepts optional n8n runtime config", () => {
     N8N_BASE_URL: "http://localhost:5678",
     N8N_API_KEY: "dev-key",
     N8N_TIMEOUT_MS: "20000",
+    EXECUTION_MAX_ACTIVE_PER_USER: "3",
+    EXECUTION_MAX_OUTPUT_BYTES: "5000",
   });
 
   assert.equal(parsed.N8N_BASE_URL, "http://localhost:5678");
   assert.equal(parsed.N8N_API_KEY, "dev-key");
   assert.equal(parsed.N8N_TIMEOUT_MS, 20000);
+  assert.equal(parsed.EXECUTION_MAX_ACTIVE_PER_USER, 3);
+  assert.equal(parsed.EXECUTION_MAX_OUTPUT_BYTES, 5000);
 });
 
 test("execution schema defaults input to an empty object", () => {
