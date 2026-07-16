@@ -71,6 +71,50 @@ export interface UserCredentialSafe {
   updatedAt: string;
 }
 
+export interface CredentialRequirement {
+  id: string;
+  agentId: string;
+  nodeName: string;
+  nodeType: string;
+  credentialType: string;
+  displayName: string;
+  required: boolean;
+  schema: {
+    fields?: {
+      name: string;
+      label: string;
+      type: string;
+      required?: boolean;
+    }[];
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AgentInstance {
+  id: string;
+  userId: string;
+  agentId: string;
+  status: 'DRAFT' | 'READY' | 'DISABLED' | 'ERROR';
+  displayName?: string | null;
+  configuration: Record<string, unknown>;
+  n8nWorkflowId?: string | null;
+  lastRunAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  setup: {
+    requiredCount: number;
+    linkedCount: number;
+    missingCount: number;
+    ready: boolean;
+  };
+  credentialLinks: {
+    credentialRequirementId: string;
+    userCredentialId: string;
+  }[];
+  agent?: MarketplaceAgentDetail;
+}
+
 interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -150,6 +194,34 @@ export async function downloadAgentWorkflow(agentId: string, token: string): Pro
 
 export async function fetchCredentials(token: string): Promise<UserCredentialSafe[]> {
   return apiFetch<UserCredentialSafe[]>('/api/credentials', withAuth(token));
+}
+
+export async function fetchCredentialRequirements(agentId: string): Promise<CredentialRequirement[]> {
+  return apiFetch<CredentialRequirement[]>(`/api/agents/${agentId}/credential-requirements`);
+}
+
+export async function createAgentInstance(agentId: string, token: string): Promise<AgentInstance> {
+  return apiFetch<AgentInstance>(`/api/agents/${agentId}/instances`, withAuth(token, { method: 'POST' }));
+}
+
+export async function fetchAgentInstance(instanceId: string, token: string): Promise<AgentInstance> {
+  return apiFetch<AgentInstance>(`/api/agent-instances/${instanceId}`, withAuth(token));
+}
+
+export async function fetchAgentInstances(token: string): Promise<AgentInstance[]> {
+  return apiFetch<AgentInstance[]>('/api/agent-instances', withAuth(token));
+}
+
+export async function updateAgentInstanceCredentials(
+  instanceId: string,
+  token: string,
+  links: { credentialRequirementId: string; userCredentialId: string }[]
+): Promise<AgentInstance> {
+  return apiFetch<AgentInstance>(`/api/agent-instances/${instanceId}/credentials`, withAuth(token, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ links }),
+  }));
 }
 
 export async function createCredential(

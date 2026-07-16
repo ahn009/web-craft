@@ -12,6 +12,7 @@ import agentRoutes from "./modules/agents/agents.routes.js";
 import purchaseRoutes from "./modules/purchases/purchases.routes.js";
 import credentialRequirementRoutes from "./modules/credentials/credential-requirements.routes.js";
 import credentialsRoutes from "./modules/credentials/credentials.routes.js";
+import agentInstanceRoutes from "./modules/agent-instances/agent-instances.routes.js";
 import { hasExtractedFiles, extractZip } from "./services/zip-extractor.service.js";
 import { importAgents } from "./services/agent-importer.service.js";
 
@@ -34,6 +35,7 @@ await fastify.register(authRoutes);
 await fastify.register(agentRoutes);
 await fastify.register(credentialRequirementRoutes);
 await fastify.register(credentialsRoutes);
+await fastify.register(agentInstanceRoutes);
 await fastify.register(purchaseRoutes);
 
 // Serve static frontend files in production

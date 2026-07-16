@@ -550,18 +550,20 @@ Acceptance criteria:
 
 ### Phase 4: Agent Instances
 
+Status: Complete on 2026-07-16.
+
 Goal:
 
 Create a user's configured copy of an agent.
 
 Tasks:
 
-- Add create/list/detail/update instance APIs.
-- Add setup status calculation.
-- Add `Use Agent` button on marketplace detail.
-- Add `My Agents` workspace cards.
-- Add setup page.
-- Add credential linking UI.
+- [x] Add create/list/detail/update instance APIs.
+- [x] Add setup status calculation.
+- [x] Add `Use Agent` button on marketplace detail.
+- [x] Add `My Agents` workspace cards.
+- [x] Add setup page.
+- [x] Add credential linking UI.
 
 Acceptance criteria:
 

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, Layers, Loader2, PackageOpen, ShoppingBag } from 'lucide-react';
+import { Download, KeyRound, Layers, Loader2, PackageOpen, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { downloadAgentWorkflow, fetchMyAgents } from '@/services/api';
+import { createAgentInstance, downloadAgentWorkflow, fetchMyAgents } from '@/services/api';
 import type { PurchasedAgent } from '@/services/api';
 import { getErrorMessage } from '@/lib/errors';
 
@@ -13,11 +13,13 @@ function workflowFileName(name: string) {
 }
 
 export default function MyAgentsPage() {
+  const navigate = useNavigate();
   const { isAuthenticated, token } = useAuth();
   const [items, setItems] = useState<PurchasedAgent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [configuringId, setConfiguringId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -52,6 +54,20 @@ export default function MyAgentsPage() {
       setError(getErrorMessage(err, 'Failed to download workflow'));
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleConfigure = async (item: PurchasedAgent) => {
+    if (!token) return;
+    setConfiguringId(item.agent.id);
+    setError('');
+    try {
+      const instance = await createAgentInstance(item.agent.id, token);
+      navigate(`/agent-instances/${instance.id}/setup`);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to open setup'));
+    } finally {
+      setConfiguringId(null);
     }
   };
 
@@ -144,20 +160,36 @@ export default function MyAgentsPage() {
                   <div className="text-xs text-muted-foreground">
                     {item.agent.nodeCount} nodes · Claimed {new Date(item.purchasedAt).toLocaleDateString()}
                   </div>
-                  <Button
-                    onClick={() => handleDownload(item)}
-                    disabled={downloadingId === item.agent.id}
-                    size="sm"
-                    variant="outline"
-                    className="border-cyan/30 text-cyan hover:bg-cyan/10 rounded-full"
-                  >
-                    {downloadingId === item.agent.id ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Download className="w-4 h-4 mr-2" />
-                    )}
-                    Download
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      onClick={() => handleConfigure(item)}
+                      disabled={configuringId === item.agent.id}
+                      size="sm"
+                      variant="outline"
+                      className="border-purple/40 text-purple hover:bg-purple/10 rounded-full"
+                    >
+                      {configuringId === item.agent.id ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <KeyRound className="w-4 h-4 mr-2" />
+                      )}
+                      Configure
+                    </Button>
+                    <Button
+                      onClick={() => handleDownload(item)}
+                      disabled={downloadingId === item.agent.id}
+                      size="sm"
+                      variant="outline"
+                      className="border-cyan/30 text-cyan hover:bg-cyan/10 rounded-full"
+                    >
+                      {downloadingId === item.agent.id ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4 mr-2" />
+                      )}
+                      Download
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             ))}

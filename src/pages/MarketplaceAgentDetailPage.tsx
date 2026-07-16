@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -13,12 +13,14 @@ import {
   ShoppingCart,
   Download,
   Lock,
+  KeyRound,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { getErrorMessage } from '@/lib/errors';
 import {
   checkoutAgent,
+  createAgentInstance,
   downloadAgentWorkflow,
   fetchAgentById,
   fetchMyAgents,
@@ -29,6 +31,7 @@ import type { MarketplaceAgentDetail, TestResult } from '@/services/api';
 export default function MarketplaceAgentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAuthenticated, token } = useAuth();
   const [agent, setAgent] = useState<MarketplaceAgentDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,6 +44,7 @@ export default function MarketplaceAgentDetailPage() {
   const [purchaseError, setPurchaseError] = useState('');
   const [purchasing, setPurchasing] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [openingInstance, setOpeningInstance] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -125,6 +129,20 @@ export default function MarketplaceAgentDetailPage() {
       setPurchaseError(getErrorMessage(err, 'Failed to download workflow'));
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handleUseAgent = async () => {
+    if (!id || !token) return;
+    setOpeningInstance(true);
+    setPurchaseError('');
+    try {
+      const instance = await createAgentInstance(id, token);
+      navigate(`/agent-instances/${instance.id}/setup`);
+    } catch (err: unknown) {
+      setPurchaseError(getErrorMessage(err, 'Failed to open agent setup'));
+    } finally {
+      setOpeningInstance(false);
     }
   };
 
@@ -248,24 +266,44 @@ export default function MarketplaceAgentDetailPage() {
           </Button>
           {isAuthenticated ? (
             isOwned ? (
-              <Button
-                onClick={handleDownload}
-                disabled={downloading || checkingOwnership}
-                variant="outline"
-                className="border-cyan/30 text-cyan hover:bg-cyan/10 font-semibold px-8 py-3 rounded-full"
-              >
-                {downloading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Downloading...
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-5 h-5 mr-2" />
-                    Download Workflow
-                  </>
-                )}
-              </Button>
+              <>
+                <Button
+                  onClick={handleUseAgent}
+                  disabled={openingInstance || checkingOwnership}
+                  variant="outline"
+                  className="border-purple/40 text-purple hover:bg-purple/10 font-semibold px-8 py-3 rounded-full"
+                >
+                  {openingInstance ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Opening...
+                    </>
+                  ) : (
+                    <>
+                      <KeyRound className="w-5 h-5 mr-2" />
+                      Use Agent
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={handleDownload}
+                  disabled={downloading || checkingOwnership}
+                  variant="outline"
+                  className="border-cyan/30 text-cyan hover:bg-cyan/10 font-semibold px-8 py-3 rounded-full"
+                >
+                  {downloading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-5 h-5 mr-2" />
+                      Download Workflow
+                    </>
+                  )}
+                </Button>
+              </>
             ) : (
               <Button
                 onClick={handlePurchase}

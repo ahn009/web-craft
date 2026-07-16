@@ -10,6 +10,10 @@ import { userCanAccessAgent } from "../src/utils/access.util.js";
 import { detectCredentialRequirements } from "../src/modules/credentials/credential-requirements.service.js";
 import { createCredentialSchema, updateCredentialSchema } from "../src/modules/credentials/credentials.schema.js";
 import { toSafeCredential } from "../src/modules/credentials/credentials.service.js";
+import {
+  linkAgentInstanceCredentialsSchema,
+  updateAgentInstanceSchema,
+} from "../src/modules/agent-instances/agent-instances.schema.js";
 
 test("listAgentsSchema applies defaults and coerces numeric query params", () => {
   const parsed = listAgentsSchema.parse({ page: "2", limit: "10", sort: "price_asc" });
@@ -214,4 +218,16 @@ test("safe credential response never includes encrypted payload", () => {
 
   assert.deepEqual(Object.keys(safe), ["id", "provider", "label", "lastFour", "createdAt", "updatedAt"]);
   assert.equal("encryptedPayload" in safe, false);
+});
+
+test("agent instance schemas validate configuration and credential links", () => {
+  assert.equal(updateAgentInstanceSchema.safeParse({ displayName: "Support Agent", configuration: { mode: "test" } }).success, true);
+  assert.equal(updateAgentInstanceSchema.safeParse({ displayName: "" }).success, false);
+  assert.equal(
+    linkAgentInstanceCredentialsSchema.safeParse({
+      links: [{ credentialRequirementId: "requirement-1", userCredentialId: "credential-1" }],
+    }).success,
+    true
+  );
+  assert.equal(linkAgentInstanceCredentialsSchema.safeParse({ links: [{ credentialRequirementId: "" }] }).success, false);
 });
