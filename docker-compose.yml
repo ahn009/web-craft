@@ -28,6 +28,7 @@ services:
     environment:
       DATABASE_URL: postgresql://webcraft:webcraft_secret@db:5432/webcraft
       JWT_SECRET: ${JWT_SECRET:-local-docker-development-secret-please-override}
+      CREDENTIAL_ENCRYPTION_KEY: ${CREDENTIAL_ENCRYPTION_KEY:-local-docker-credential-key-32!!}
       PORT: "3000"
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       ZIP_PATH: ../n8n-workflow-templates-main.zip
@@ -52,6 +53,30 @@ services:
     # volumes:
     #   - ./backend/src:/app/backend/src
     #   - ./backend/prisma:/app/backend/prisma
+
+  worker:
+    image: web-craft-site-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://webcraft:webcraft_secret@db:5432/webcraft
+      JWT_SECRET: ${JWT_SECRET:-local-docker-development-secret-please-override}
+      CREDENTIAL_ENCRYPTION_KEY: ${CREDENTIAL_ENCRYPTION_KEY:-local-docker-credential-key-32!!}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      NODE_ENV: ${NODE_ENV:-production}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@webcraft.ai}
+      N8N_BASE_URL: ${N8N_BASE_URL:-http://n8n:5678}
+      N8N_API_KEY: ${N8N_API_KEY:-}
+      N8N_TIMEOUT_MS: ${N8N_TIMEOUT_MS:-15000}
+      EXECUTION_MAX_ACTIVE_PER_USER: ${EXECUTION_MAX_ACTIVE_PER_USER:-10}
+      EXECUTION_MAX_OUTPUT_BYTES: ${EXECUTION_MAX_OUTPUT_BYTES:-1000000}
+    command: ["sh", "-c", "while true; do node dist/scripts/process-executions.js; sleep 5; done"]
+    networks:
+      - webcraft
 
   n8n:
     image: n8nio/n8n:latest

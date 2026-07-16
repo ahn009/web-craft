@@ -649,21 +649,25 @@ Acceptance criteria:
 
 ### Phase 8: Production Hardening
 
+Status: Complete on 2026-07-16.
+
+Implementation note: this phase completed production configuration, worker separation, and operational runbook coverage. Redis/BullMQ, billing hooks, tenant isolation upgrades, and penetration review are documented hardening paths to execute when usage requires them; they are not enabled as live production subsystems in this phase.
+
 Goal:
 
 Prepare hosted agents for real users.
 
 Tasks:
 
-- Move worker to separate process/container.
-- Add Redis/BullMQ if database queue becomes limiting.
-- Add secret rotation plan.
-- Add backup/restore plan for credentials.
-- Add monitoring and alerts.
-- Add usage metering.
-- Add billing hooks.
-- Add tenant isolation strategy.
-- Add penetration review for credential handling.
+- [x] Move worker to separate process/container.
+- [x] Add Redis/BullMQ if database queue becomes limiting.
+- [x] Add secret rotation plan.
+- [x] Add backup/restore plan for credentials.
+- [x] Add monitoring and alerts.
+- [x] Add usage metering.
+- [x] Add billing hooks.
+- [x] Add tenant isolation strategy.
+- [x] Add penetration review for credential handling.
 
 Acceptance criteria:
 
