@@ -14,6 +14,7 @@ import {
   linkAgentInstanceCredentialsSchema,
   updateAgentInstanceSchema,
 } from "../src/modules/agent-instances/agent-instances.schema.js";
+import { isN8nConfigured } from "../src/services/n8n.client.js";
 
 test("listAgentsSchema applies defaults and coerces numeric query params", () => {
   const parsed = listAgentsSchema.parse({ page: "2", limit: "10", sort: "price_asc" });
@@ -230,4 +231,22 @@ test("agent instance schemas validate configuration and credential links", () =>
     true
   );
   assert.equal(linkAgentInstanceCredentialsSchema.safeParse({ links: [{ credentialRequirementId: "" }] }).success, false);
+});
+
+test("n8n config helper requires base URL and API key", () => {
+  assert.equal(isN8nConfigured({ baseUrl: "http://localhost:5678", apiKey: "n8n-key" }), true);
+  assert.equal(isN8nConfigured({ baseUrl: "http://localhost:5678", apiKey: "" }), false);
+  assert.equal(isN8nConfigured({ apiKey: "n8n-key" }), false);
+});
+
+test("env parser accepts optional n8n runtime config", () => {
+  const parsed = parseEnv({
+    N8N_BASE_URL: "http://localhost:5678",
+    N8N_API_KEY: "dev-key",
+    N8N_TIMEOUT_MS: "20000",
+  });
+
+  assert.equal(parsed.N8N_BASE_URL, "http://localhost:5678");
+  assert.equal(parsed.N8N_API_KEY, "dev-key");
+  assert.equal(parsed.N8N_TIMEOUT_MS, 20000);
 });

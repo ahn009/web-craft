@@ -575,19 +575,21 @@ Acceptance criteria:
 
 ### Phase 5: n8n Runtime Integration
 
+Status: Complete on 2026-07-16.
+
 Goal:
 
 Import configured workflows into n8n and execute them manually.
 
 Tasks:
 
-- Add n8n service client.
-- Add n8n env config: base URL, API key, timeout.
-- Add internal Docker Compose n8n service for local dev.
-- Implement workflow import for an agent instance.
-- Implement n8n credential creation/mapping.
-- Save `n8nWorkflowId`.
-- Add error handling around unsupported nodes.
+- [x] Add n8n service client.
+- [x] Add n8n env config: base URL, API key, timeout.
+- [x] Add internal Docker Compose n8n service for local dev.
+- [x] Implement workflow import for an agent instance.
+- [x] Implement n8n credential creation/mapping.
+- [x] Save `n8nWorkflowId`.
+- [x] Add error handling around unsupported nodes.
 
 Acceptance criteria:
 

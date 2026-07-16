@@ -11,6 +11,7 @@ import {
   listAgentInstances,
   updateAgentInstance,
 } from "./agent-instances.service.js";
+import { importAgentInstanceToN8n } from "../../services/n8n-import.service.js";
 
 export default async function agentInstanceRoutes(fastify: FastifyInstance) {
   fastify.post<{ Params: { id: string } }>(
@@ -67,6 +68,21 @@ export default async function agentInstanceRoutes(fastify: FastifyInstance) {
       if (result.status === "invalid_link") return reply.status(400).send(error("Invalid credential mapping"));
 
       return success(result.instance);
+    }
+  );
+
+  fastify.post<{ Params: { id: string } }>(
+    "/api/agent-instances/:id/n8n/import",
+    { preHandler: [fastify.authenticate] },
+    async (request, reply) => {
+      const result = await importAgentInstanceToN8n(fastify.prisma, request.user, request.params.id);
+      if (result.status === "not_configured") {
+        return reply.status(501).send(error("n8n is not configured for hosted execution"));
+      }
+      if (result.status === "missing") return reply.status(404).send(error("Agent instance not found"));
+      if (result.status === "not_ready") return reply.status(409).send(error("Agent instance setup is incomplete"));
+
+      return success({ n8nWorkflowId: result.n8nWorkflowId });
     }
   );
 }

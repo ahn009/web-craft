@@ -36,6 +36,8 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       ENABLE_TEST_ROUTES: "false"
       CHECKOUT_MODE: ${CHECKOUT_MODE:-disabled}
+      N8N_BASE_URL: ${N8N_BASE_URL:-http://n8n:5678}
+      N8N_API_KEY: ${N8N_API_KEY:-}
     ports:
       - "3000:3000"
     healthcheck:
@@ -51,8 +53,26 @@ services:
     #   - ./backend/src:/app/backend/src
     #   - ./backend/prisma:/app/backend/prisma
 
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    environment:
+      N8N_HOST: 0.0.0.0
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: http
+      N8N_SECURE_COOKIE: "false"
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-local-n8n-development-key}
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8ndata:/home/node/.n8n
+    networks:
+      - webcraft
+
 volumes:
   pgdata:
+    driver: local
+  n8ndata:
     driver: local
 
 networks:

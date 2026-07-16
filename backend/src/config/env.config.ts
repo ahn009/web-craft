@@ -34,6 +34,9 @@ export const envSchema = z
     SENDGRID_FROM_EMAIL: z.string().email().default("noreply@webcraft.ai"),
     ADMIN_EMAIL: z.string().email().default("admin@webcraft.ai"),
     CREDENTIAL_ENCRYPTION_KEY: z.string().default("dev-credential-key-change-me-32!"),
+    N8N_BASE_URL: z.string().url().optional(),
+    N8N_API_KEY: z.string().default(""),
+    N8N_TIMEOUT_MS: z.coerce.number().positive().default(15000),
     ENABLE_TEST_ROUTES: booleanFromEnv.default(false),
     CHECKOUT_MODE: z.enum(["demo", "disabled"]).default("demo"),
   })
